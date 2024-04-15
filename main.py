@@ -9,6 +9,7 @@ import certifi
 
 import re
 import getpass
+import argparse
 
 import dataclasses
 
@@ -144,16 +145,19 @@ class ChannelService:
                 return chnl.id
         return None
     
-    def print_channel_tree(self, channel_id:str, recursive:bool=False):
-        self.__print_channel_tree(channel_id, 0, recursive)
+    def print_channel_tree(self, channel_id:str, recursive:bool=False, archived:bool=False):
+        self.__print_channel_tree(channel_id, 0, recursive, archived=archived)
     
-    def __print_channel_tree(self, channel_id:str, depth:int, recrusive:bool):
+    def __print_channel_tree(self, channel_id:str, depth:int, recrusive:bool, archived:bool):
         chnl = self.channel_api.get_channel(channel_id=channel_id)
+        # flag archivedがないとき、アーカイブ済みのチャンネルは無視する
+        if(not archived and chnl.archived):
+            return
         print("--"*depth + chnl.name)
         if not recrusive and depth >= 1:
             return
         for child in chnl.children:
-            self.__print_channel_tree(child, depth+1, recrusive)
+            self.__print_channel_tree(child, depth+1, recrusive, archived)
 
     def get_messages(self, channel_id:str, limit=10):
         messages = self.channel_api.get_messages(channel_id=channel_id,limit=limit)
@@ -177,9 +181,23 @@ class CustomShell(cmd.Cmd):
         self.session.current_channel = channel_id
         self.prompt = f"({ChannelService(self.session).get_full_channel_path(self.session.current_channel)}):"
 
-    def do_ls(self, arg):
+    def do_ls(self, arg:str):
         """lsコマンド: チャンネル一覧を表示します"""
-        ChannelService(self.session).print_channel_tree(self.session.current_channel, recursive=False)
+        assert(self.session.current_channel is not None)
+        parser = argparse.ArgumentParser()
+        parser.add_argument("path", default=".")
+        parser.add_argument("-R","--recursive",action="store_true")
+        parser.add_argument("-a","--all",action="store_true")
+        args = parser.parse_args(arg.split())
+        flag_recursive = args.recursive
+        flag_all = args.all
+        path:str = args.path
+        # チャンネルのpathからidを取得
+        channel_id = ChannelService(self.session).search_channel_by_path(path)
+        if(channel_id is None):
+            print("チャンネルが見つかりませんでした")
+            return
+        ChannelService(self.session).print_channel_tree(channel_id, recursive=flag_recursive, archived=flag_all)
         
     def do_cat(self, arg):
         """catコマンド: チャンネルのメッセージを表示します"""
