@@ -36,8 +36,13 @@ MMMMMMMMNJ<;jMMMD;;;;dMMN<;jjMMMMMMMMMMMMMMMMMNJ+++jj&MMMNd5++++++jMMMMMMMMMMMMN
 MMMMMMMMMMMNMMMMe++++dMMMNMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMM
 """
 
-    
+class LoginFailException(Exception):
+    pass
+ 
 class Session:
+    '''
+        sessionクラス
+    '''
     def __init__(self):
         self.session_id = None
         self.current_channel = None
@@ -48,11 +53,17 @@ class Session:
 
     # ログインを試行する
     def try_login(self, username: str, password: str):
+        '''
+            ログイン用
+        '''
         auth_api = AuthenticationApi(api_client=self.client)
-        res = auth_api.login_with_http_info(post_login_request=PostLoginRequest(name=username, password=password))
-        
-        if(res.status_code != 204):
-            raise Exception("ログインに失敗しました")
+        try:
+            res = auth_api.login_with_http_info(post_login_request=PostLoginRequest(name=username, password=password))
+            if(res.status_code != 204):
+                raise LoginFailException("IDもしくはパスワードが違います")
+        except Exception as e:
+            raise LoginFailException("apiに接続できませんでした。") from e
+
         assert(res.headers is not None)
         
         # cookieからセッションIDをもってきて設定する
@@ -214,9 +225,17 @@ class CustomShell(cmd.Cmd):
         self.session.try_exit()
         
 if __name__ == "__main__":
-    print("traQにログインします。")
-    username = input("username:")
-    password = getpass.getpass(prompt="password:")
     ses = Session()
-    ses.try_login(username, password)
+    print("traQにログインします。")
+    while(True):
+        # 成功するまでログインを試行
+        username = input("username:")
+        password = getpass.getpass(prompt="password:")
+        try:
+            ses.try_login(username, password)
+            break
+        except Exception as e:
+            print(e)
+            continue
+        
     CustomShell(ses).cmdloop()
