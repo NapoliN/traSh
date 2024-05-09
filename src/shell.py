@@ -54,6 +54,10 @@ class ShellEmulator(cmd.Cmd):
                 fname = self.cmdqueue.pop(0)
                 self.stream = open(fname, 'w', encoding='utf-8')
                 sys.stdout = self.stream
+            if conj == TokenType.REDIRECT:
+                fname = self.cmdqueue.pop(0)
+                self.stream = open(fname, 'r', encoding='utf-8')
+                sys.stdin = self.stream
 
         return line
     
