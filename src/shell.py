@@ -37,7 +37,6 @@ class ShellEmulator(cmd.Cmd):
                     self.conjqueue.append(conj.type)
             self.accept = False
             line = self.cmdqueue.pop(0)
-            
 
         if self.stream:
             # pipeされた入力を受け取る
@@ -51,6 +50,10 @@ class ShellEmulator(cmd.Cmd):
             if conj == TokenType.PIPE:
                 self.stream = io.StringIO()
                 sys.stdout = self.stream
+            if conj == TokenType.APPEND:
+                fname = self.cmdqueue.pop(0)
+                self.stream = open(fname, 'w', encoding='utf-8')
+                sys.stdout = self.stream
 
         return line
     
@@ -58,6 +61,12 @@ class ShellEmulator(cmd.Cmd):
         if not self.cmdqueue:
             # キューを処理しきったので、次のコマンドを受け付ける
             self.accept = True
+            if self.stream:
+                # リダイレクトされた出力を閉じる
+                self.stream.close()
+                self.stream = None
+                sys.stdout = sys.__stdout__
+                
         return super().postcmd(stop, line)
 
     def do_ping(self,_):
