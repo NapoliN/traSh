@@ -4,19 +4,20 @@
 import cmd
 import sys
 import io
-from typing import List
+from typing import List, Optional
 from .cmd_parser import parse_input, TokenType
 
 class ShellEmulator(cmd.Cmd):
     '''
         パイプとかリダイレクトとかを考慮したシェルエミュレータ
     '''
-    def __init__(self):
+    def __init__(self) -> None:
         super().__init__()
         self.prompt = '>>> '
         self.conjqueue: List[TokenType] = []
         self.accept = True
-        self.stream :io.StringIO = None
+        self.stream : Optional[io.StringIO] = None
+        self.fstream : Optional[io.TextIOWrapper] = None
 
     def precmd(self, line: str) -> str:
         '''
@@ -44,20 +45,28 @@ class ShellEmulator(cmd.Cmd):
             line += self.stream.getvalue()
             self.stream.close()
             self.stream = None
+        
+        if self.fstream:
+            # リダイレクトされた入力を受け取る
+            sys.stdin = sys.__stdin__
+            line += self.fstream.read()
+            self.fstream.close()
+            self.fstream = None
 
         if self.conjqueue:
-            conj = self.conjqueue.pop(0)
-            if conj == TokenType.PIPE:
+            conjtype = self.conjqueue.pop(0)
+            if conjtype == TokenType.PIPE:
                 self.stream = io.StringIO()
                 sys.stdout = self.stream
-            if conj == TokenType.APPEND:
+            if conjtype == TokenType.APPEND:
                 fname = self.cmdqueue.pop(0)
-                self.stream = open(fname, 'w', encoding='utf-8')
-                sys.stdout = self.stream
-            if conj == TokenType.REDIRECT:
+                p = open(fname, 'a', encoding='utf-8')
+                self.fstream = open(fname, 'w', encoding='utf-8')
+                sys.stdout = self.fstream
+            if conjtype == TokenType.REDIRECT:
                 fname = self.cmdqueue.pop(0)
-                self.stream = open(fname, 'r', encoding='utf-8')
-                sys.stdin = self.stream
+                self.fstream = open(fname, 'r', encoding='utf-8')
+                sys.stdin = self.fstream
 
         return line
     

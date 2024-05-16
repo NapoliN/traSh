@@ -11,6 +11,7 @@ pydantic = "^2.7.0"
 openapi_client = {path = "openapi"}
 certifi = "^2024.2.2"
 mypy = "^1.10.0"
+pytest = "^8.2.0"
 
 
 [build-system]
