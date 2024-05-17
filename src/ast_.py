@@ -34,6 +34,18 @@ class Node:
 
     def __repr__(self):
         return self.__str__()
+    
+    def print(self):
+        '''
+            ASTを出力する
+        '''
+        print(self.tree())
+    
+    def tree(self, indent=0) -> str:
+        '''
+            ASTを出力する
+        '''
+        return '    '*indent
 
 @dataclasses.dataclass
 class NodePipe(Node):
@@ -42,6 +54,8 @@ class NodePipe(Node):
     '''
     left: Node
     right: Node
+    def tree(self, indent=0):
+        return super().tree(indent) + f'|\n{self.left.tree(indent+1)}\n{self.right.tree(indent+1)}'
     
 @dataclasses.dataclass
 class NodeConcat(Node):
@@ -87,6 +101,11 @@ class NodeCommand(Node):
     args : List[str]
     redirects : Optional[List[NodeRedirect]] = None
     
+    def __str__(self):
+        return super().__str__() + f'({self.cmd}, {self.args}, {self.redirects})'
+    
+    def tree(self, indent=0):
+        return super().tree(indent) + f'{self.cmd} {self.args} {self.redirects}'
 
     
 class ASTBuilder:

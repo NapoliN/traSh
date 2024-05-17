@@ -4,89 +4,100 @@
 import cmd
 import sys
 import io
-from typing import List, Optional
+from typing import List, Optional, Generator, Tuple
 from .cmd_parser import parse_input, TokenType
+from .ast_ import ASTBuilder, Node, NodeCommand, NodePipe, NodeRedirect, NodeAnd, NodeOr, NodeConcat
 
-class ShellEmulator(cmd.Cmd):
-    '''
-        パイプとかリダイレクトとかを考慮したシェルエミュレータ
-    '''
-    def __init__(self) -> None:
-        super().__init__()
-        self.prompt = '>>> '
-        self.conjqueue: List[TokenType] = []
-        self.accept = True
-        self.stream : Optional[io.StringIO] = None
-        self.fstream : Optional[io.TextIOWrapper] = None
-
-    def precmd(self, line: str) -> str:
-        '''
-            コマンド文字列を解析してトークンのリストを作成する    
-        '''
-        if self.accept:
-            # 受理可能状態の場合は、入力をparseする
-            tokens = parse_input(line)
-            while tokens:
-                cmd = ""
-                while tokens and tokens[0].type == TokenType.STRING:
-                    token = tokens.pop(0)
-                    cmd += token.value + " "
-                self.cmdqueue.append(cmd)
-
-                if tokens:
-                    conj = tokens.pop(0)
-                    self.conjqueue.append(conj.type)
-            self.accept = False
-            line = self.cmdqueue.pop(0)
-
-        if self.stream:
-            # pipeされた入力を受け取る
-            sys.stdout = sys.__stdout__
-            line += self.stream.getvalue()
-            self.stream.close()
-            self.stream = None
-        
-        if self.fstream:
-            # リダイレクトされた入力を受け取る
-            sys.stdin = sys.__stdin__
-            line += self.fstream.read()
-            self.fstream.close()
-            self.fstream = None
-
-        if self.conjqueue:
-            conjtype = self.conjqueue.pop(0)
-            if conjtype == TokenType.PIPE:
-                self.stream = io.StringIO()
-                sys.stdout = self.stream
-            if conjtype == TokenType.APPEND:
-                fname = self.cmdqueue.pop(0)
-                p = open(fname, 'a', encoding='utf-8')
-                self.fstream = open(fname, 'w', encoding='utf-8')
-                sys.stdout = self.fstream
-            if conjtype == TokenType.REDIRECT:
-                fname = self.cmdqueue.pop(0)
-                self.fstream = open(fname, 'r', encoding='utf-8')
-                sys.stdin = self.fstream
-
-        return line
-    
-    def postcmd(self, stop: bool, line: str) -> bool:
-        if not self.cmdqueue:
-            # キューを処理しきったので、次のコマンドを受け付ける
-            self.accept = True
-            if self.stream:
-                # リダイレクトされた出力を閉じる
-                self.stream.close()
-                self.stream = None
-                sys.stdout = sys.__stdout__
+import subprocess
                 
-        return super().postcmd(stop, line)
+class MyShell():
+    pass
+    def __init__(self):
+        self.readable = False
+        pass
+    
+    def run(self):
+        while True:
+            cmd = input('>>> ')
+            if cmd == 'exit':
+                break
+            tokens = parse_input(cmd)
+            ast = ASTBuilder().build_ast(tokens)
+            self.__interpret(ast)
+        pass
+    
+    def __interpret(self, ast:Node):
+        '''
+            ASTに従ってコマンドを実行する
+        '''
+        generator = self.__interpret_internal(ast)
+        for cmd, args in generator:
+            if self.readable:
+                input_ = sys.stdin.read()
+                self.readable = False
+                #TODO scriptsにあるならそれをpythonで実行
+                child = subprocess.run([cmd, *args],encoding='utf-8',input=input_,stdout=subprocess.PIPE)
+            else:
+                child = subprocess.run([cmd, *args],encoding='utf-8',stdout=subprocess.PIPE)
+            sys.stdout.write(child.stdout)
+        pass
 
-    def do_ping(self,_):
-        print("pong")
+    def __interpret_internal(self, ast:Node) -> Generator[Tuple[str, List[str]], None, None]:
+        '''
+            interpretの内部実装
+            NodeCommand訪問時にyieldでコマンドを返す
+        '''
+        # コマンド処理
+        if type(ast) == NodeCommand:
+            # リダイレクト処理
+            old_stdin = sys.stdin
+            old_stdout = sys.stdout
+            if ast.redirects:
+                for redir in ast.redirects:
+                    if redir.type_ == NodeRedirect.Type.In:
+                        sys.stdin = open(redir.fname, 'r', encoding='utf-8')
+                        self.readable = True
+                    if redir.type_ == NodeRedirect.Type.Out:
+                        sys.stdout = open(redir.fname, 'w', encoding='utf-8')
+            yield ast.cmd, ast.args
+            # リダイレクト復帰処理
+            if sys.stdout != old_stdout:
+                sys.stdout.close()
+                sys.stdout = old_stdout
+            if sys.stdin != old_stdin:
+                sys.stdin.close()
+                sys.stdin = old_stdin
+            
+        # パイプ処理
+        if type(ast) == NodePipe:
+            # 標準出力をIOにつなぐ
+            old_stdout = sys.stdout
+            sys.stdout = io.StringIO()
+            left = self.__interpret_internal(ast.left)
+            for t in left:
+                yield t
+            # 標準入力をIOから読み込む
+            old_stdin = sys.stdin
+            sys.stdin = io.StringIO(sys.stdout.getvalue())
+            self.readable = True
+            # 標準出力の復帰
+            sys.stdout = old_stdout
+            right = self.__interpret_internal(ast.right)
+            for t in right:
+                yield t
+            # 標準入力の復帰
+            sys.stdin = old_stdin
         
-    def do_echo(self, arg):
-        print(arg, "ee")
+        if type(ast) == NodeConcat:
+            left = self.__interpret_internal(ast.left)
+            for t in left:
+                yield t
+            right = self.__interpret_internal(ast.right)
+            for t in right:
+                yield t
 
 if __name__ == '__main__':
-    ShellEmulator().cmdloop()    
+    myshell = MyShell()
+    myshell.run()   
+    
+    
