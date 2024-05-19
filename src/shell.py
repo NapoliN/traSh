@@ -5,22 +5,23 @@ import sys
 import io
 import os
 from typing import List, Optional, Generator, Tuple
-from .cmd_parser import parse_input, TokenType
-from .ast_ import ASTBuilder, Node, NodeCommand, NodePipe, NodeRedirect, NodeAnd, NodeOr, NodeConcat
+from .cmd_parser import parse_input
+from .ast_ import ASTBuilder, Node, NodeCommand, NodePipe, NodeRedirect, NodeConcat
 
 import subprocess
                 
-class MyShell():
+class ShellBase():
     '''
         シェルを提供するクラス
     '''
     def __init__(self):
         self.readable = False
+        self.prompt = '>>> '
         pass
     
     def run(self):
         while True:
-            cmd = input('>>> ')
+            cmd = input(self.prompt)
             if cmd == 'exit':
                 break
             tokens = parse_input(cmd)
@@ -115,7 +116,7 @@ def search_script(script_name:str) -> Optional[str]:
     return None
 
 if __name__ == '__main__':
-    myshell = MyShell()
+    myshell = ShellBase()
     myshell.run()   
     
     
