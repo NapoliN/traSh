@@ -8,7 +8,7 @@ Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
 **total_message_count** | **int** | ユーザーの総投稿メッセージ数(削除されたものも含む) | 
 **stamps** | [**List[UserStatsStamp]**](UserStatsStamp.md) | ユーザーのスタンプ統計情報 | 
-**datetime** | **datetime** | 統計情報日時 | 
+**datetime_** | **datetime** | 統計情報日時 | 
 
 ## Example
 

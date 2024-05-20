@@ -7,7 +7,7 @@
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
 **stamp_id** | **str** | スタンプUUID | 
-**datetime** | **datetime** | 使用日時 | 
+**datetime_** | **datetime** | 使用日時 | 
 
 ## Example
 

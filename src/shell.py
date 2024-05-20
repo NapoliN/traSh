@@ -21,12 +21,21 @@ class ShellBase():
     
     def run(self):
         while True:
+            self.preinput()
             cmd = input(self.prompt)
+            if cmd == '':
+                continue
             if cmd == 'exit':
                 break
             tokens = parse_input(cmd)
             ast = ASTBuilder().build_ast(tokens)
             self.__interpret(ast)
+        pass
+    
+    def preinput(self):
+        '''
+            入力前のhook関数
+        '''
         pass
     
     def __interpret(self, ast:Node):

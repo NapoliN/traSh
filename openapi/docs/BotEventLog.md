@@ -11,7 +11,7 @@ Name | Type | Description | Notes
 **event** | **str** | イベントタイプ | 
 **result** | [**BotEventResult**](BotEventResult.md) |  | [optional] 
 **code** | **int** | ステータスコード | 
-**datetime** | **datetime** | イベント日時 | 
+**datetime_** | **datetime** | イベント日時 | 
 
 ## Example
 

@@ -28,8 +28,8 @@ class StampHistoryEntry(BaseModel):
     スタンプ履歴の1項目
     """ # noqa: E501
     stamp_id: StrictStr = Field(description="スタンプUUID", alias="stampId")
-    datetime: datetime = Field(description="使用日時")
-    __properties: ClassVar[List[str]] = ["stampId", "datetime"]
+    datetime_: datetime = Field(description="使用日時")
+    __properties: ClassVar[List[str]] = ["stampId", "datetime_"]
 
     model_config = ConfigDict(
         populate_by_name=True,
@@ -83,7 +83,7 @@ class StampHistoryEntry(BaseModel):
 
         _obj = cls.model_validate({
             "stampId": obj.get("stampId"),
-            "datetime": obj.get("datetime")
+            "datetime_": obj.get("datetime_")
         })
         return _obj
 

@@ -1,6 +1,10 @@
+import getpass
+
 from .shell import ShellBase
 from .session import Session
-import getpass
+from .environment import Environment
+from openapi.openapi_client.api.me_api import MeApi
+from .services.channel_service import ChannelService
 
 TRASH_LOGO = """
 MMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMM
@@ -31,7 +35,8 @@ class TraQShell(ShellBase):
     def __init__(self):
         super().__init__()
         self.prompt = 'traq> '
-        pass
+        self.session = Session()
+        self.environment = Environment()
 
     def start(self):
         '''
@@ -42,15 +47,27 @@ class TraQShell(ShellBase):
             username = input('Username: ')
             password = getpass.getpass('Password: ')
             try:
-                self.session = Session()
                 self.session.try_login(username, password)
+                me_api = MeApi(api_client=self.session.client)
+                user_detail = me_api.get_me()
+                channel_service = ChannelService(self.session)
+                if user_detail.home_channel is None:
+                    raise Exception("ホームチャンネルが取得できませんでした")
+                else:
+                    channel_id = user_detail.home_channel
+                    channel_name = channel_service.get_full_channel_path(channel_id)
+                    self.environment.set_current_channel(channel_id, channel_name)
                 break
             except Exception as e:
                 print(f'Login Failed: {e}')
         self.run()
-        pass
+        
+    def preinput(self):
+        self.prompt = f'{self.environment.current_channel_name}> '
+        return super().preinput()
     
-def __main__():
+if __name__ == "__main__":
     shell = TraQShell()
     shell.start()
-    pass
+    # unreachable
+    assert False

@@ -18,22 +18,18 @@ class Session:
     '''
     def __init__(self):
         self.session_id = None
-        self.current_channel = None
         # sessionを保持するためのクライアントを作成
         self.client = api_client.ApiClient(configuration=api_client.Configuration(ssl_ca_cert=certifi.where()))
-
-        self.current_channel:Optional[str] = None
         
-    def load_session(self) -> api_client.ApiClient:
+    def load_session(self):
         '''
             環境変数からセッションを読み込む
         '''
-        session_id = os.environ.get("TRAQ_SESSION")
+        session_id = os.environ.get("QTRASH_SESSION")
         if session_id is None:
             raise Exception("No Session Found. Please set TRAQ_SESSION environment variable.")
         self.client.cookie = session_id
-        return self.client
-
+        
     # ログインを試行する
     def try_login(self, username: str, password: str):
         '''
@@ -56,15 +52,6 @@ class Session:
         session_id = session.group(1)
         self.client.cookie = session_id
         os.environ.setdefault("TRAQ_SESSION", session_id)
-
-        me_api = MeApi(api_client=self.client)
-        user_detail = me_api.get_me()
-        if user_detail.home_channel is None:
-            raise Exception("ホームチャンネルが取得できませんでした")
-        else:
-            self.current_channel = user_detail.home_channel
-
-        return self.client
 
     def try_exit(self):
         '''

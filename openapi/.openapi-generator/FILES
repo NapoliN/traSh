@@ -307,6 +307,4 @@ setup.cfg
 setup.py
 test-requirements.txt
 test/__init__.py
-test/test_oidc_traq_user_info.py
-test/test_oidc_user_info.py
 tox.ini
