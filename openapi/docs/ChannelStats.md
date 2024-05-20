@@ -9,7 +9,7 @@ Name | Type | Description | Notes
 **total_message_count** | **int** | チャンネルの総投稿メッセージ数(削除されたものも含む) | 
 **stamps** | [**List[ChannelStatsStamp]**](ChannelStatsStamp.md) | チャンネル上のスタンプ統計情報 | 
 **users** | [**List[ChannelStatsUser]**](ChannelStatsUser.md) | チャンネル上のユーザー統計情報 | 
-**datetime_** | **datetime** | 統計情報日時 | 
+**datetime** | **datetime** | 統計情報日時 | 
 
 ## Example
 

@@ -33,8 +33,8 @@ class BotEventLog(BaseModel):
     event: StrictStr = Field(description="イベントタイプ")
     result: Optional[BotEventResult] = None
     code: StrictInt = Field(description="ステータスコード")
-    datetime_: datetime = Field(description="イベント日時")
-    __properties: ClassVar[List[str]] = ["botId", "requestId", "event", "result", "code", "datetime_"]
+    datetime: datetime = Field(description="イベント日時")
+    __properties: ClassVar[List[str]] = ["botId", "requestId", "event", "result", "code", "datetime"]
 
     model_config = ConfigDict(
         populate_by_name=True,
@@ -92,7 +92,7 @@ class BotEventLog(BaseModel):
             "event": obj.get("event"),
             "result": obj.get("result"),
             "code": obj.get("code"),
-            "datetime_": obj.get("datetime_")
+            "datetime": obj.get("datetime")
         })
         return _obj
 

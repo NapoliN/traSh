@@ -30,8 +30,8 @@ class UserStats(BaseModel):
     """ # noqa: E501
     total_message_count: StrictInt = Field(description="ユーザーの総投稿メッセージ数(削除されたものも含む)", alias="totalMessageCount")
     stamps: List[UserStatsStamp] = Field(description="ユーザーのスタンプ統計情報")
-    datetime_: datetime = Field(description="統計情報日時")
-    __properties: ClassVar[List[str]] = ["totalMessageCount", "stamps", "datetime_"]
+    datetime: datetime = Field(description="統計情報日時")
+    __properties: ClassVar[List[str]] = ["totalMessageCount", "stamps", "datetime"]
 
     model_config = ConfigDict(
         populate_by_name=True,
@@ -93,7 +93,7 @@ class UserStats(BaseModel):
         _obj = cls.model_validate({
             "totalMessageCount": obj.get("totalMessageCount"),
             "stamps": [UserStatsStamp.from_dict(_item) for _item in obj["stamps"]] if obj.get("stamps") is not None else None,
-            "datetime_": obj.get("datetime_")
+            "datetime": obj.get("datetime")
         })
         return _obj
 

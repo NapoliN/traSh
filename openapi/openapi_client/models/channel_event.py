@@ -29,9 +29,9 @@ class ChannelEvent(BaseModel):
     チャンネルイベント
     """ # noqa: E501
     type: StrictStr = Field(description="イベントタイプ")
-    datetime_: datetime = Field(description="イベント日時")
+    datetime: datetime = Field(description="イベント日時")
     detail: ChannelEventDetail
-    __properties: ClassVar[List[str]] = ["type", "datetime_", "detail"]
+    __properties: ClassVar[List[str]] = ["type", "datetime", "detail"]
 
     @field_validator('type')
     def type_validate_enum(cls, value):
@@ -95,7 +95,7 @@ class ChannelEvent(BaseModel):
 
         _obj = cls.model_validate({
             "type": obj.get("type"),
-            "datetime_": obj.get("datetime_"),
+            "datetime": obj.get("datetime"),
             "detail": ChannelEventDetail.from_dict(obj["detail"]) if obj.get("detail") is not None else None
         })
         return _obj

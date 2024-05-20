@@ -61,6 +61,8 @@ from openapi_client.models.o_auth2_prompt import OAuth2Prompt
 from openapi_client.models.o_auth2_response_type import OAuth2ResponseType
 from openapi_client.models.o_auth2_scope import OAuth2Scope
 from openapi_client.models.o_auth2_token import OAuth2Token
+from openapi_client.models.oidc_traq_user_info import OIDCTraqUserInfo
+from openapi_client.models.oidc_user_info import OIDCUserInfo
 from openapi_client.models.ogp import Ogp
 from openapi_client.models.ogp_media import OgpMedia
 from openapi_client.models.parent_changed_event import ParentChangedEvent

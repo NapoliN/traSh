@@ -7,7 +7,7 @@
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
 **type** | **str** | イベントタイプ | 
-**datetime_** | **datetime** | イベント日時 | 
+**datetime** | **datetime** | イベント日時 | 
 **detail** | [**ChannelEventDetail**](ChannelEventDetail.md) |  | 
 
 ## Example

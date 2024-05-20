@@ -60,6 +60,8 @@ docs/OAuth2Prompt.md
 docs/OAuth2ResponseType.md
 docs/OAuth2Scope.md
 docs/OAuth2Token.md
+docs/OIDCTraqUserInfo.md
+docs/OIDCUserInfo.md
 docs/Oauth2Api.md
 docs/Ogp.md
 docs/OgpApi.md
@@ -222,6 +224,8 @@ openapi_client/models/o_auth2_scope.py
 openapi_client/models/o_auth2_token.py
 openapi_client/models/ogp.py
 openapi_client/models/ogp_media.py
+openapi_client/models/oidc_traq_user_info.py
+openapi_client/models/oidc_user_info.py
 openapi_client/models/parent_changed_event.py
 openapi_client/models/patch_bot_request.py
 openapi_client/models/patch_channel_request.py
@@ -303,4 +307,6 @@ setup.cfg
 setup.py
 test-requirements.txt
 test/__init__.py
+test/test_oidc_traq_user_info.py
+test/test_oidc_user_info.py
 tox.ini

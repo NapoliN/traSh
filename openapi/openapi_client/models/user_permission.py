@@ -83,6 +83,7 @@ class UserPermission(str, Enum):
     GET_USER = 'get_user'
     REGISTER_USER = 'register_user'
     GET_ME = 'get_me'
+    GET_OIDC_USERINFO = 'get_oidc_userinfo'
     EDIT_ME = 'edit_me'
     CHANGE_MY_ICON = 'change_my_icon'
     CHANGE_MY_PASSWORD = 'change_my_password'

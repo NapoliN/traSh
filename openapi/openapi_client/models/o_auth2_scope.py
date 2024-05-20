@@ -26,6 +26,8 @@ class OAuth2Scope(str, Enum):
     """
     allowed enum values
     """
+    OPENID = 'openid'
+    PROFILE = 'profile'
     READ = 'read'
     WRITE = 'write'
     MANAGE_BOT = 'manage_bot'
