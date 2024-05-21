@@ -9,14 +9,6 @@ class ChannelService:
     '''
         チャンネル取得関連のサービスクラス
     '''
-    @dataclasses.dataclass
-    class Message:
-        '''
-            メッセージ表示用のデータクラス
-        '''
-        username:str
-        content:str
-        created_at:str
 
     def __init__(self, session: Session):
         self.session = session
@@ -24,17 +16,31 @@ class ChannelService:
         # cache
         self.channels: Optional[ChannelList] = None
 
-    def get_full_channel_path(self, channel_id:str) -> str:
+    def convert_id2name(self, channel_id:str) -> str:
         '''
             チャンネルIDをパス名に変換する
+            
+            Args:
+                channel_id: チャンネルID
         '''
         chnl = self.channel_api.get_channel(channel_id=channel_id)
         if chnl.parent_id is None:
             return "#" + chnl.name
         else:
-            return self.get_full_channel_path(chnl.parent_id) + "/" + chnl.name
+            return self.convert_id2name(chnl.parent_id) + "/" + chnl.name
 
-    def search_channel_by_path(self, current_channel_id: str, path_:str) -> Optional[str]:
+    def convert_name2id(self, current_channel_id: str, path_:str) -> Optional[str]:
+        '''
+            パス名をチャンネルIDに変換する
+            
+            #から始まるときはrootから探索
+            
+            そうでなければcurrent_channel_idからの相対で探索
+            
+            Args:
+                current_channel_id: 現在のチャンネルID
+                path_: 探索したいパス
+        '''
         # argを/で分割
         paths = path_.split("/")
 
@@ -42,7 +48,7 @@ class ChannelService:
 
         if paths[0][0] == "#":
             root = paths[0][1:]
-            root_id = self.search_channel(root, is_root=True)
+            root_id = self.__convert_name2id_internal(root, is_root=True)
             if root_id is None:
                 return None
             tmp_channel = root_id
@@ -60,7 +66,7 @@ class ChannelService:
                     #self.prompt = f"({ChannelService(self.session).get_full_channel_path(self.session.current_channel)}):"
             else:
                 # 子チャンネルを検索
-                channel_id = ChannelService(self.session).search_channel(path,parent_id=tmp_channel)
+                channel_id = ChannelService(self.session).__convert_name2id_internal(path,parent_id=tmp_channel)
                 if channel_id is None:
                     return None
                 else:
@@ -68,7 +74,10 @@ class ChannelService:
                     #self.prompt = f"({ChannelService(self.session).get_full_channel_path(channel_id)}):"
         return tmp_channel
 
-    def search_channel(self, channel_name:str, parent_id:Optional[str]=None, child_id:Optional[str]=None, is_root:bool=False) -> Optional[str]:
+    def __convert_name2id_internal(self, channel_name:str, parent_id:Optional[str]=None, child_id:Optional[str]=None, is_root:bool=False) -> Optional[str]:
+        '''
+            convert_name2idの内部実装
+        '''
         #TODO ネストしたチャンネルの検索
         if self.channels is None:
             self.channels = self.channel_api.get_channels()
@@ -78,9 +87,20 @@ class ChannelService:
         return None
 
     def print_channel_tree(self, channel_id:str, recursive:bool=False, archived:bool=False):
+        '''
+            チャンネルを木構造で標準出力に表示する
+            
+            Args:
+                channel_id: チャンネルID
+                recursive: 子チャンネルを再帰的に表示するかどうか
+                archived: アーカイブ済みのチャンネルも表示するかどうか
+        '''
         self.__print_channel_tree(channel_id, 0, recursive, archived=archived)
 
     def __print_channel_tree(self, channel_id:str, depth:int, recrusive:bool, archived:bool):
+        '''
+            prent_channel_treeの内部実装
+        '''
         chnl = self.channel_api.get_channel(channel_id=channel_id)
         # flag archivedがないとき、アーカイブ済みのチャンネルは無視する
         if(not archived and chnl.archived):

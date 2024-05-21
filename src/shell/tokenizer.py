@@ -27,7 +27,7 @@ class Token:
     type: TokenType
     value: str
 
-def parse_input(input_str:str) -> List[Token]:
+def tokenize(input_str:str) -> List[Token]:
     '''
         シェルに渡されたコマンド文字列を解析する関数
         Args:

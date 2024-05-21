@@ -27,6 +27,10 @@ class MessageService():
     def get_messages(self, channel_id: str, limit: int = 10):
         '''
             チャンネルIDからメッセージを取得する
+            
+            Args:
+                channel_id: チャンネルID
+                limit: 取得するメッセージ数
         '''
         messages = self.channel_api.get_messages(channel_id=channel_id, limit=limit)
         #TODO embedとかの処理
@@ -35,6 +39,10 @@ class MessageService():
     def post_message(self, channel_id: str, content: str):
         '''
             チャンネルIDにメッセージを投稿する
+            
+            Args:
+                channel_id: チャンネルID
+                content: 投稿するメッセージ
         '''
         request = PostMessageRequest(content=content, embed=True)
         self.channel_api.post_message(channel_id=channel_id, post_message_request=request)

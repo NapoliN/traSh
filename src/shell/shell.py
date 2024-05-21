@@ -7,7 +7,7 @@ import os
 import enum
 import dataclasses
 from typing import List, Optional, Generator, Tuple
-from .tokenizer import parse_input
+from .tokenizer import tokenize
 from .ast_ import ASTBuilder, Node, NodeCommand, NodePipe, NodeRedirect, NodeConcat
 
 import subprocess
@@ -41,7 +41,7 @@ class ShellBase():
                 continue
             if cmd == 'exit':
                 break
-            tokens = parse_input(cmd)
+            tokens = tokenize(cmd)
             ast = ASTBuilder().build_ast(tokens)
             self.__interpret(ast)
         pass

@@ -55,7 +55,7 @@ class TraQShell(ShellBase):
                     raise Exception("ホームチャンネルが取得できませんでした")
                 else:
                     channel_id = user_detail.home_channel
-                    channel_name = channel_service.get_full_channel_path(channel_id)
+                    channel_name = channel_service.convert_id2name(channel_id)
                     self.environment.set_current_channel(channel_id, channel_name)
                 break
             except Exception as e:
@@ -77,7 +77,7 @@ class TraQShell(ShellBase):
                     ch_name = channelIO.channel_name
                     current_channel_id = self.environment.current_channel_id
                     # ch_nameのチャンネルIDに書き込む
-                    ch_id = channel_service.search_channel_by_path(current_channel_id,ch_name)
+                    ch_id = channel_service.convert_name2id(current_channel_id,ch_name)
                     #TODO 書き込みを実装する
             self.channelIOs.clear()
         

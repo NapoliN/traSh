@@ -1,31 +1,31 @@
 from src.shell.ast_ import ASTBuilder, NodeCommand, NodeRedirect, NodePipe
-from src.shell.tokenizer import parse_input
+from src.shell.tokenizer import tokenize
 
 
 ast_builder = ASTBuilder()
 
 def test_cmd_with_no_arg():
-    tokens = parse_input("ls")
+    tokens = tokenize("ls")
     ast = ast_builder.build_ast(tokens)
     assert type(ast) == NodeCommand
     assert ast.cmd == "ls"
     
 def test_cmd_with_args():
-    tokens = parse_input("ls -l")
+    tokens = tokenize("ls -l")
     ast = ast_builder.build_ast(tokens)
     assert type(ast) == NodeCommand
     assert ast.cmd == "ls"
     assert ast.args == ["-l"]
     
 def test_cmd_with_multiple_args():
-    tokens = parse_input("ls -l -a")
+    tokens = tokenize("ls -l -a")
     ast = ast_builder.build_ast(tokens)
     assert type(ast) == NodeCommand
     assert ast.cmd == "ls"
     assert ast.args == ["-l", "-a"]
     
 def test_cmd_with_redirect():
-    tokens = parse_input("ls -l > out.txt")
+    tokens = tokenize("ls -l > out.txt")
     ast = ast_builder.build_ast(tokens)
     assert type(ast) == NodeCommand
     assert ast.cmd == "ls"
@@ -35,7 +35,7 @@ def test_cmd_with_redirect():
     assert ast.redirects[0].fname == "out.txt"
     
 def test_cmd_with_multiple_redirect():
-    tokens = parse_input("ls -a -l < in.txt > out.txt")
+    tokens = tokenize("ls -a -l < in.txt > out.txt")
     ast = ast_builder.build_ast(tokens)
     assert type(ast) == NodeCommand
     assert ast.cmd == "ls"
@@ -47,7 +47,7 @@ def test_cmd_with_multiple_redirect():
     assert ast.redirects[1].fname == "out.txt"
     
 def test_cmd_with_pipe():
-    tokens = parse_input("ls -l | grep test")
+    tokens = tokenize("ls -l | grep test")
     ast = ast_builder.build_ast(tokens)
     assert type(ast) == NodePipe
     left,right = ast.left, ast.right
@@ -59,7 +59,7 @@ def test_cmd_with_pipe():
     assert right.args == ["test"]
     
 def test_cmd_with_pipe_and_redirect():
-    tokens = parse_input("ls -l | grep test > out.txt")
+    tokens = tokenize("ls -l | grep test > out.txt")
     ast = ast_builder.build_ast(tokens)
     assert type(ast) == NodePipe
     left,right = ast.left, ast.right
@@ -74,7 +74,7 @@ def test_cmd_with_pipe_and_redirect():
     assert right.redirects[0].fname == "out.txt"
     
 def test_cmd_with_redirect_and_pipe():
-    tokens = parse_input("ls -l > out.txt | grep test")
+    tokens = tokenize("ls -l > out.txt | grep test")
     ast = ast_builder.build_ast(tokens)
     assert type(ast) == NodePipe
     left,right = ast.left, ast.right
@@ -89,7 +89,7 @@ def test_cmd_with_redirect_and_pipe():
     assert right.args == ["test"]
 
 def test_cmd_with_multiple_redirect_and_pipe():
-    tokens = parse_input("ls -l < in.txt > out.txt | grep test")
+    tokens = tokenize("ls -l < in.txt > out.txt | grep test")
     ast = ast_builder.build_ast(tokens)
     assert type(ast) == NodePipe
     left,right = ast.left, ast.right
@@ -106,7 +106,7 @@ def test_cmd_with_multiple_redirect_and_pipe():
     assert right.args == ["test"]
     
 def test_cmd_with_multiple_pipe():
-    tokens = parse_input("ls -l | grep test | wc -l")
+    tokens = tokenize("ls -l | grep test | wc -l")
     ast = ast_builder.build_ast(tokens)
     assert type(ast) == NodePipe
     left,right = ast.left, ast.right
