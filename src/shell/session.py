@@ -27,7 +27,7 @@ class Session:
         '''
         session_id = os.environ.get("QTRASH_SESSION")
         if session_id is None:
-            raise Exception("No Session Found. Please set TRAQ_SESSION environment variable.")
+            raise Exception("No Session Found. Please set QTRASH_SESSION environment variable.")
         self.client.cookie = session_id
         
     # ログインを試行する
@@ -51,7 +51,7 @@ class Session:
             raise Exception("セッションIDが取得できませんでした。")
         session_id = session.group(1)
         self.client.cookie = session_id
-        os.environ.setdefault("TRAQ_SESSION", session_id)
+        os.environ.setdefault("QTRASH_SESSION", session_id)
 
     def try_exit(self):
         '''

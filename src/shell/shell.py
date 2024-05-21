@@ -78,7 +78,8 @@ class ShellBase():
             script_path = search_script(cmd)
             if script_path is not None:
                 # src/scripts下にスクリプトがあるならそれを実行
-                child = subprocess.run(['python', script_path, *args],encoding='utf-8',input=input_,stdout=subprocess.PIPE)           
+                module_name = path2module(script_path)
+                child = subprocess.run(['poetry', 'run', 'python', '-m', module_name, *args],encoding='utf-8',input=input_,stdout=subprocess.PIPE)           
             else:
                 # なければ通常のコマンドを実行
                 child = subprocess.run([cmd, *args],encoding='utf-8',input=input_,stdout=subprocess.PIPE)
@@ -154,6 +155,13 @@ def search_script(script_name:str) -> Optional[str]:
         if script_name in files:
             return os.path.join(root, script_name)
     return None
+
+def path2module(path:str) -> str:
+    '''
+    ファイルパスをモジュール名に変換する
+    '''
+    # ./ と .pyを取り除いて/を.で置換
+    return path[2:].replace('/','.')[:-3]
 
 if __name__ == '__main__':
     myshell = ShellBase()
