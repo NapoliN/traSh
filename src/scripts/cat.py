@@ -1,21 +1,23 @@
 import argparse
 
-from src.services.channel_service import ChannelService
+from src.services import ChannelService, MessageService
 from src.shell.session import Session
 from src.shell.environment import Environment
 
 def cat(arg: str):
-    """catコマンド: チャンネルのメッセージを表示します"""
+    """
+        catコマンド: チャンネルのメッセージを表示します
+    """
     session = Session()
     session.load_session()
     env = Environment()
-    channel_service = ChannelService(session)
+    message_service = MessageService(session)
     
     if arg == "":
         # current_channelのメッセージを表示
-        messages = channel_service.get_messages(env.current_channel_id)
+        messages = message_service.get_messages(env.current_channel_id)
         for msg in messages:
-            print(f"{msg.username}({msg.created_at}): {msg.content}")
+            print(msg)
     else:
         pass
     

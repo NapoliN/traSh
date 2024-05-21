@@ -60,6 +60,8 @@ class TraQShell(ShellBase):
                 break
             except Exception as e:
                 print(f'Login Failed: {e}')
+        print(TRASH_LOGO)
+        print("welcome to traSh'ell!")
         self.run()
         
     def preinput(self):

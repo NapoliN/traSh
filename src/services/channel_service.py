@@ -7,7 +7,7 @@ from src.shell.session import Session
 
 class ChannelService:
     '''
-        チャンネル周りの操作のwrapper
+        チャンネル取得関連のサービスクラス
     '''
     @dataclasses.dataclass
     class Message:
@@ -90,9 +90,3 @@ class ChannelService:
             return
         for child in chnl.children:
             self.__print_channel_tree(child, depth+1, recrusive, archived)
-
-    def get_messages(self, channel_id:str, limit=10):
-        messages = self.channel_api.get_messages(channel_id=channel_id,limit=limit)
-        user_api = UserApi(api_client=self.session.client)
-
-        return [self.Message(username=user_api.get_user(msg.user_id).name, content=msg.content, created_at=msg.created_at.strftime("%Y-%d-%m %H:%M:%S")) for msg in messages]
