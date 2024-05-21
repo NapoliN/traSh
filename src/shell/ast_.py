@@ -10,6 +10,8 @@ ASTを生成するモジュール
         | ARG args
     redirects = > FNAME redirects
               | < FNAME redirects
+              | >> CHANNEL_NAME redirects
+              | << CHANNEL_NAME redirects
               | ε
 '''
 
@@ -89,6 +91,7 @@ class NodeRedirect(Node):
     class Type(enum.Enum):
         In = enum.auto()
         Out = enum.auto()
+        CHANNEL_OUT = enum.auto()
     type_: Type
     fname: str
 
@@ -192,7 +195,7 @@ class ASTBuilder:
         
         cmd = NodeCommand(cmd=cmdname, args=args)
         
-        if not self.is_end and (self.current_token.type == TokenType.REDIRECT or self.current_token.type == TokenType.APPEND):
+        if not self.is_end and (self.current_token.type == TokenType.REDIRECT_FILE_IN or self.current_token.type == TokenType.REDIRECT_FILE_OUT or self.current_token.type == TokenType.REDIRECT_CHANNEL_OUT):
             redirects = self.build_redirects()
             cmd.redirects = redirects
         return cmd
@@ -202,12 +205,14 @@ class ASTBuilder:
             redirectsを構築する
         '''
         redirects: List[NodeRedirect] = []
-        while not self.is_end and (self.current_token.type == TokenType.REDIRECT or self.current_token.type == TokenType.APPEND):
+        while not self.is_end and (self.current_token.type == TokenType.REDIRECT_FILE_IN or self.current_token.type == TokenType.REDIRECT_FILE_OUT or self.current_token.type == TokenType.REDIRECT_CHANNEL_OUT):
             token = self.pop_token()
-            if token.type == TokenType.APPEND:
+            if token.type == TokenType.REDIRECT_FILE_OUT:
                 type_ = NodeRedirect.Type.Out
-            elif token.type == TokenType.REDIRECT:
+            elif token.type == TokenType.REDIRECT_FILE_IN:
                 type_ = NodeRedirect.Type.In
+            elif token.type == TokenType.REDIRECT_CHANNEL_OUT:
+                type_ = NodeRedirect.Type.Out
             else:
                 raise SyntaxError(f'invalid token {token}')
             if self.is_end or self.current_token.type != TokenType.STRING:

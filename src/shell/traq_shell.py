@@ -1,6 +1,6 @@
 import getpass
 
-from .shell import ShellBase
+from .shell import ShellBase, ChanneiIO
 from .session import Session
 from .environment import Environment
 from openapi.openapi_client.api.me_api import MeApi
@@ -65,6 +65,20 @@ class TraQShell(ShellBase):
     def preinput(self):
         self.prompt = f'{self.environment.current_channel_name}> '
         return super().preinput()
+    
+    def postcmd(self):
+        # channelIOの処理
+        if self.channelIOs:
+            channel_service = ChannelService(self.session)
+            for channelIO in self.channelIOs:
+                if channelIO.type_ == ChanneiIO.Type.In:
+                    ch_name = channelIO.channel_name
+                    current_channel_id = self.environment.current_channel_id
+                    # ch_nameのチャンネルIDに書き込む
+                    ch_id = channel_service.search_channel_by_path(current_channel_id,ch_name)
+                    #TODO 書き込みを実装する
+            self.channelIOs.clear()
+        
     
 if __name__ == "__main__":
     shell = TraQShell()

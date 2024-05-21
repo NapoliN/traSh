@@ -12,8 +12,9 @@ class TokenType(enum.Enum):
     '''
     STRING = enum.auto()
     PIPE = enum.auto()
-    REDIRECT = enum.auto()
-    APPEND = enum.auto()
+    REDIRECT_FILE_IN = enum.auto()
+    REDIRECT_FILE_OUT = enum.auto()
+    REDIRECT_CHANNEL_OUT = enum.auto()
     SEMICOLON = enum.auto()
     AND = enum.auto()
     OR = enum.auto()
@@ -35,14 +36,8 @@ def parse_input(input_str:str) -> List[Token]:
             トークンのリスト
     '''
     tokens = []
-    for token in re.finditer(r'(?P<STRING>[^\s|&;<>]+)|(?P<PIPE>\|)|(?P<REDIRECT><)|(?P<APPEND>>)|(?P<SEMICOLON>;)|(?P<AND>&&)|(?P<OR>\|\|)', input_str):
+    for token in re.finditer(r'(?P<STRING>[^\s|&;<>]+)|(?P<PIPE>\|)|(?P<REDIRECT_CHANNEL_OUT>>>)|(?P<REDIRECT_FILE_IN><)|(?P<REDIRECT_FILE_OUT>>)|(?P<SEMICOLON>;)|(?P<AND>&&)|(?P<OR>\|\|)', input_str):
         for name, value in token.groupdict().items():
             if value:
                 tokens.append(Token(TokenType[name], value))
     return tokens
-
-if __name__ == '__main__':
-    command = 'ls -l && echo tetete | grep test > input.txt'
-    tokens = parse_input(command)
-    for token in tokens:
-        print(token)

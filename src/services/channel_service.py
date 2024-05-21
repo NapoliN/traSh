@@ -25,6 +25,9 @@ class ChannelService:
         self.channels: Optional[ChannelList] = None
 
     def get_full_channel_path(self, channel_id:str) -> str:
+        '''
+            チャンネルIDをパス名に変換する
+        '''
         chnl = self.channel_api.get_channel(channel_id=channel_id)
         if chnl.parent_id is None:
             return "#" + chnl.name

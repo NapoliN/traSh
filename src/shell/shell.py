@@ -4,20 +4,34 @@
 import sys
 import io
 import os
+import enum
+import dataclasses
 from typing import List, Optional, Generator, Tuple
 from .tokenizer import parse_input
 from .ast_ import ASTBuilder, Node, NodeCommand, NodePipe, NodeRedirect, NodeConcat
 
 import subprocess
                 
+@dataclasses.dataclass
+class ChanneiIO():
+    '''
+        チャネルを表すクラス
+    '''
+    class Type(enum.Enum):
+        In = enum.auto()
+        Out = enum.auto()
+    channel_name: str
+    type_: Type
+                
 class ShellBase():
     '''
         シェルを提供するクラス
     '''
+    outbuffer: Optional[io.StringIO] = None
+    channelIOs: List[ChanneiIO] = []
     def __init__(self):
         self.readable = False
         self.prompt = '>>> '
-        pass
     
     def run(self):
         while True:
@@ -38,12 +52,25 @@ class ShellBase():
         '''
         pass
     
+    def precmd(self):
+        '''
+            コマンド実行前のhook関数
+        '''
+        pass
+    
+    def postcmd(self):
+        '''
+            コマンド実行後のhook関数
+        '''
+        pass
+    
     def __interpret(self, ast:Node):
         '''
             ASTに従ってコマンドを実行する
         '''
         generator = self.__interpret_internal(ast)
         for cmd, args in generator:
+            self.precmd()
             input_: Optional[str] = None
             if self.readable:
                 input_ = sys.stdin.read()
@@ -55,8 +82,8 @@ class ShellBase():
             else:
                 # なければ通常のコマンドを実行
                 child = subprocess.run([cmd, *args],encoding='utf-8',input=input_,stdout=subprocess.PIPE)
-                
             sys.stdout.write(child.stdout)
+            self.postcmd()
         pass
 
     def __interpret_internal(self, ast:Node) -> Generator[Tuple[str, List[str]], None, None]:
@@ -76,6 +103,10 @@ class ShellBase():
                         self.readable = True
                     if redir.type_ == NodeRedirect.Type.Out:
                         sys.stdout = open(redir.fname, 'w', encoding='utf-8')
+                    if redir.type_ == NodeRedirect.Type.CHANNEL_OUT:
+                        self.outbuffer = io.StringIO()
+                        sys.stdout = self.outbuffer
+                        self.channelIOs.append(ChanneiIO(redir.fname, ChanneiIO.Type.Out))
             yield ast.cmd, ast.args
             # リダイレクト復帰処理
             if sys.stdout != old_stdout:
