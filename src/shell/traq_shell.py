@@ -4,7 +4,7 @@ from .shell import ShellBase
 from .session import Session
 from .environment import Environment
 from openapi.openapi_client.api.me_api import MeApi
-from .services.channel_service import ChannelService
+from ..services.channel_service import ChannelService
 
 TRASH_LOGO = """
 MMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMM

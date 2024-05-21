@@ -1,8 +1,8 @@
 import argparse
 
 from src.services.channel_service import ChannelService
-from src.session import Session
-from src.environment import Environment
+from src.shell.session import Session
+from src.shell.environment import Environment
 
 def cd(path:str):
     """

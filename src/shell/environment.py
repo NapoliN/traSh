@@ -1,6 +1,6 @@
 import os
 from src.services.channel_service import ChannelService
-from src.session import Session
+from src.shell.session import Session
 
 class Environment:
     '''

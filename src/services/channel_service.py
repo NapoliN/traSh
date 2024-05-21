@@ -3,7 +3,7 @@ from typing import Optional
 
 from openapi.openapi_client.api import ChannelApi, UserApi
 from openapi_client.models.channel_list import ChannelList
-from src.session import Session
+from src.shell.session import Session
 
 class ChannelService:
     '''

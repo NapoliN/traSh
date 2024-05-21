@@ -5,7 +5,7 @@ import sys
 import io
 import os
 from typing import List, Optional, Generator, Tuple
-from .cmd_parser import parse_input
+from .tokenizer import parse_input
 from .ast_ import ASTBuilder, Node, NodeCommand, NodePipe, NodeRedirect, NodeConcat
 
 import subprocess

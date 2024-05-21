@@ -16,7 +16,7 @@ ASTを生成するモジュール
 import enum
 import dataclasses
 from typing import List, Optional
-from .cmd_parser import TokenType, Token
+from .tokenizer import TokenType, Token
 
 class SyntaxError(Exception):
     '''

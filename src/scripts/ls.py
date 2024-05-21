@@ -1,7 +1,7 @@
 import argparse
 from src.services.channel_service import ChannelService
-from src.session import Session
-from src.environment import Environment
+from src.shell.session import Session
+from src.shell.environment import Environment
 
 def ls(path:str, recursive:bool=False, all:bool=False):
     """lsコマンド: チャンネル一覧を表示します"""

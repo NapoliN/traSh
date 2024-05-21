@@ -1,5 +1,5 @@
-from src.ast_ import ASTBuilder, NodeCommand, NodeRedirect, NodePipe
-from src.cmd_parser import parse_input
+from src.shell.ast_ import ASTBuilder, NodeCommand, NodeRedirect, NodePipe
+from src.shell.tokenizer import parse_input
 
 
 ast_builder = ASTBuilder()
