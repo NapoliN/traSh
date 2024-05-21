@@ -1,7 +1,7 @@
 import dataclasses
 from typing import Optional
 
-from openapi.openapi_client.api import ChannelApi, UserApi
+from openapi.openapi_client.api import ChannelApi
 from openapi_client.models.channel_list import ChannelList
 from src.shell.session import Session
 
@@ -58,7 +58,7 @@ class ChannelService:
             if path == "" or path == ".":
                 continue
             elif path == "..":
-                chnl = ChannelService(self.session).channel_api.get_channel(channel_id=tmp_channel)
+                chnl = self.channel_api.get_channel(channel_id=tmp_channel)
                 if chnl.parent_id is None:
                     return None
                 else:
@@ -66,7 +66,7 @@ class ChannelService:
                     #self.prompt = f"({ChannelService(self.session).get_full_channel_path(self.session.current_channel)}):"
             else:
                 # 子チャンネルを検索
-                channel_id = ChannelService(self.session).__convert_name2id_internal(path,parent_id=tmp_channel)
+                channel_id = self.__convert_name2id_internal(path,parent_id=tmp_channel)
                 if channel_id is None:
                     return None
                 else:

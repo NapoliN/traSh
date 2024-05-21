@@ -19,10 +19,3 @@ def cd(path:str):
         exit(1)
     channel_name = channel_service.convert_id2name(channel_id)
     env.set_current_channel(channel_id, channel_name)
-    
-if __name__ == "__main__":
-    parser = argparse.ArgumentParser()
-    parser.add_argument("path", default=".")
-    args = parser.parse_args()
-    path:str = args.path
-    cd(path)

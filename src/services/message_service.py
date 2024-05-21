@@ -1,3 +1,4 @@
+import sys
 import dataclasses
 import datetime
 from openapi.openapi_client import ChannelApi, UserApi
@@ -45,4 +46,4 @@ class MessageService():
                 content: 投稿するメッセージ
         '''
         request = PostMessageRequest(content=content, embed=True)
-        self.channel_api.post_message(channel_id=channel_id, post_message_request=request)
+        result = self.channel_api.post_message(channel_id=channel_id, post_message_request=request)

@@ -212,7 +212,7 @@ class ASTBuilder:
             elif token.type == TokenType.REDIRECT_FILE_IN:
                 type_ = NodeRedirect.Type.In
             elif token.type == TokenType.REDIRECT_CHANNEL_OUT:
-                type_ = NodeRedirect.Type.Out
+                type_ = NodeRedirect.Type.CHANNEL_OUT
             else:
                 raise SyntaxError(f'invalid token {token}')
             if self.is_end or self.current_token.type != TokenType.STRING:

@@ -36,7 +36,7 @@ def tokenize(input_str:str) -> List[Token]:
             トークンのリスト
     '''
     tokens = []
-    for token in re.finditer(r'(?P<STRING>[^\s|&;<>]+)|(?P<PIPE>\|)|(?P<REDIRECT_CHANNEL_OUT>>>)|(?P<REDIRECT_FILE_IN><)|(?P<REDIRECT_FILE_OUT>>)|(?P<SEMICOLON>;)|(?P<AND>&&)|(?P<OR>\|\|)', input_str):
+    for token in re.finditer(r'(?P<STRING>[^\s|&;<>]+)|(?P<PIPE>\|)|(?P<REDIRECT_CHANNEL_OUT>>>)|(?P<REDIRECT_FILE_IN><)|(?P<REDIRECT_FILE_OUT>>(?!>))|(?P<SEMICOLON>;)|(?P<AND>&&)|(?P<OR>\|\|)', input_str):
         for name, value in token.groupdict().items():
             if value:
                 tokens.append(Token(TokenType[name], value))

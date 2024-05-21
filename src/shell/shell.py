@@ -64,6 +64,14 @@ class ShellBase():
         '''
         pass
     
+    def do_cd(self, args:List[str]):
+        '''
+            cdコマンド
+            これだけは親プロセスからやる必要がある
+            子クラスで実装する
+        '''
+        pass
+    
     def __interpret(self, ast:Node):
         '''
             ASTに従ってコマンドを実行する
@@ -76,6 +84,10 @@ class ShellBase():
                 input_ = sys.stdin.read()
                 self.readable = False
             script_path = search_script(cmd)
+            if cmd == "cd":
+                self.do_cd(args)
+                self.postcmd()
+                continue
             if script_path is not None:
                 # src/scripts下にスクリプトがあるならそれを実行
                 module_name = path2module(script_path)
@@ -85,7 +97,6 @@ class ShellBase():
                 child = subprocess.run([cmd, *args],encoding='utf-8',input=input_,stdout=subprocess.PIPE)
             sys.stdout.write(child.stdout)
             self.postcmd()
-        pass
 
     def __interpret_internal(self, ast:Node) -> Generator[Tuple[str, List[str]], None, None]:
         '''

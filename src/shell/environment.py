@@ -11,8 +11,8 @@ class Environment:
         '''
             現在いるチャンネルを設定する
         '''
-        os.environ.setdefault("QTRASH_CHANNEL", channel_id)
-        os.environ.setdefault("QTRASH_CHANNEL_NAME", channel_name)
+        os.environ["QTRASH_CHANNEL"] = channel_id
+        os.environ["QTRASH_CHANNEL_NAME"] = channel_name
     
     @property
     def current_channel_id(self):

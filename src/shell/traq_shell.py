@@ -1,10 +1,14 @@
 import getpass
+from typing import List
+import argparse
+import sys
 
 from .shell import ShellBase, ChanneiIO
 from .session import Session
 from .environment import Environment
 from openapi.openapi_client.api.me_api import MeApi
-from ..services.channel_service import ChannelService
+from src.services import ChannelService, MessageService
+from src.scripts.cd import cd
 
 TRASH_LOGO = """
 MMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMM
@@ -72,15 +76,28 @@ class TraQShell(ShellBase):
         # channelIOの処理
         if self.channelIOs:
             channel_service = ChannelService(self.session)
+            message_service = MessageService(self.session)
+            if self.outbuffer is None:
+                raise Exception("Fatal Error: No output buffer found.")
+            content = self.outbuffer.getvalue()
             for channelIO in self.channelIOs:
-                if channelIO.type_ == ChanneiIO.Type.In:
+                if channelIO.type_ == ChanneiIO.Type.Out:
                     ch_name = channelIO.channel_name
                     current_channel_id = self.environment.current_channel_id
                     # ch_nameのチャンネルIDに書き込む
                     ch_id = channel_service.convert_name2id(current_channel_id,ch_name)
-                    #TODO 書き込みを実装する
+                    if ch_id is None:
+                        raise Exception("チャンネルが見つかりませんでした")
+                    message_service.post_message(ch_id, content)
+                    
             self.channelIOs.clear()
-        
+    
+    def do_cd(self, args: List[str]):
+        parser = argparse.ArgumentParser()
+        parser.add_argument("path", default=".")
+        parsed = parser.parse_args(args)
+        path:str = parsed.path
+        cd(path)
     
 if __name__ == "__main__":
     shell = TraQShell()

@@ -10,7 +10,7 @@ def ls(path:str, recursive:bool=False, all:bool=False):
     session.load_session()
     env = Environment()
     channel_service = ChannelService(session)
-    
+        
     # チャンネルのpathからidを取得
     channel_id = channel_service.convert_name2id(env.current_channel_id, path)
     if channel_id is None:
