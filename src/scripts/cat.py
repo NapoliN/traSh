@@ -1,4 +1,5 @@
 import argparse
+import os
 
 from src.services import ChannelService, MessageService
 from src.shell.session import Session
@@ -24,6 +25,10 @@ def cat(arg: str):
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("arg", default="")
+    parser.add_argument("--system", action="store_true")
     args = parser.parse_args()
     arg:str = args.arg
+    is_system:bool = args.system
+    if is_system:
+        os.execvp("cat",["cat", arg])
     cat(arg)
