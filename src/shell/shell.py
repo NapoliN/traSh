@@ -21,8 +21,8 @@ class ChanneiIO():
         In = enum.auto()
         Out = enum.auto()
     channel_name: str
-    type_: Type
-                
+    type_: Type 
+
 class ShellBase():
     '''
         シェルを提供するクラス
@@ -32,11 +32,17 @@ class ShellBase():
     def __init__(self):
         self.readable = False
         self.prompt = '>>> '
+        
+    def read(self) -> str:
+        '''
+            標準入力を読み込む
+        '''
+        return input(self.prompt)
     
     def run(self):
         while True:
             self.preinput()
-            cmd = input(self.prompt)
+            cmd = self.read()
             if cmd == '':
                 continue
             if cmd == 'exit':

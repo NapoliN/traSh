@@ -9,6 +9,7 @@ from .environment import Environment
 from openapi.openapi_client.api.me_api import MeApi
 from src.services import ChannelService, MessageService
 from src.scripts.cd import cd
+from src.shell.input_reader import InputReader
 
 TRASH_LOGO = """
 MMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMM
@@ -32,6 +33,23 @@ MMMMMMMMNJ<;jMMMD;;;;dMMN<;jjMMMMMMMMMMMMMMMMMNJ+++jj&MMMNd5++++++jMMMMMMMMMMMMN
 MMMMMMMMMMMNMMMMe++++dMMMNMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMM
 """
 
+class InputReaderForTraQ(InputReader):
+    def __init__(self, session: Session):
+        super().__init__()
+        self.env = Environment()
+        self.session = session
+        
+    def completion(self, prefix: str) -> List[str]:
+        """
+            チャンネル名の補完を行う
+        """
+        channel_service = ChannelService(self.session)
+        current_id = self.env.current_channel_id
+        candidates_id = channel_service.convert_name2idprefix(current_id, prefix)
+        candidates_name = [channel_service.get_channel_name(ch_id) for ch_id in candidates_id]
+        return candidates_name
+        
+
 class TraQShell(ShellBase):
     '''
     traQ用のシェル
@@ -41,6 +59,10 @@ class TraQShell(ShellBase):
         self.prompt = 'traq> '
         self.session = Session()
         self.environment = Environment()
+        self.input_reader = InputReaderForTraQ(session=self.session)
+
+    def read(self) -> str:
+        return self.input_reader.read(self.prompt)
 
     def start(self):
         '''
@@ -85,7 +107,7 @@ class TraQShell(ShellBase):
                     ch_name = channelIO.channel_name
                     current_channel_id = self.environment.current_channel_id
                     # ch_nameのチャンネルIDに書き込む
-                    ch_id = channel_service.convert_name2id(current_channel_id,ch_name)
+                    ch_id = channel_service.convert_name2idperfect(current_channel_id,ch_name)
                     if ch_id is None:
                         raise Exception("チャンネルが見つかりませんでした")
                     message_service.post_message(ch_id, content)

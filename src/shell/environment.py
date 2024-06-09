@@ -1,6 +1,5 @@
 import os
-from src.services.channel_service import ChannelService
-from src.shell.session import Session
+from typing import Optional
 
 class Environment:
     '''
@@ -37,3 +36,11 @@ class Environment:
         if name is None:
             raise Exception("No Channel Found. Please set QTRASH_CHANNEL_NAME environment variable.")
         return name
+
+    @property
+    def channel_list(self) -> Optional[str]:
+        return os.environ.get("QTRASH_CHANNEL_LIST")
+    
+    @channel_list.setter
+    def channel_list(self, channel_list: str):
+        os.environ["QTRASH_CHANNEL_LIST"] = channel_list

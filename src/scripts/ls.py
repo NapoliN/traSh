@@ -12,7 +12,7 @@ def ls(path:str, recursive:bool=False, all:bool=False):
     channel_service = ChannelService(session)
         
     # チャンネルのpathからidを取得
-    channel_id = channel_service.convert_name2id(env.current_channel_id, path)
+    channel_id = channel_service.convert_name2idperfect(env.current_channel_id, path)
     if channel_id is None:
         print("チャンネルが見つかりませんでした")
         return
