@@ -2,7 +2,7 @@ import dataclasses
 from typing import Optional, List
 
 from openapi.openapi_client.api import ChannelApi
-from openapi_client.models.channel_list import ChannelList
+from openapi.openapi_client.models import ChannelList
 from src.shell.session import Session
 from src.shell.environment import Environment
 
