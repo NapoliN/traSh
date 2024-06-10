@@ -40,6 +40,7 @@ class InputReader():
             while True:
                 if sys.stdin in select.select([sys.stdin], [], [], 0)[0]:
                     char = sys.stdin.read(1)
+                    #TODO 制御文字はinputbufferにいれないようにする
                     if char == '\n' or char == '\r': # 入力の終了
                         print()
                         cmd = ''.join(self.input_buffer)
