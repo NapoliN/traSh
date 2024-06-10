@@ -111,18 +111,19 @@ class ChannelService(IChannelService):
         tmp_channel = current_channel_id
 
         if paths[0][0] == "#":
+            #TODO ルートでのprefix searchの実装
             root = paths[0][1:]
-            root_ids = self.__convert_name2id_internal(root, is_root=True)
+            root_ids = self.search_name(root, is_root=True)
             if not root_ids:
                 return []
             tmp_channel = root_ids[0]
             paths = paths[1:]
 
-        for i, path in enumerate(paths):
-            if path == "" or path == ".":
+        for i, name in enumerate(paths):
+            if name == "" or name == ".":
                 continue
-            elif path == "..":
-                chnl = self.channel_api.get_channel(channel_id=tmp_channel)
+            elif name == "..":
+                chnl = self.env.get_channel(channel_id=tmp_channel)
                 if chnl.parent_id is None:
                     return []
                 else:
@@ -131,18 +132,18 @@ class ChannelService(IChannelService):
             else:
                 # 子チャンネルを検索
                 if prefix_match and i == len(paths) - 1:
-                    return self.__convert_name2id_internal(path,parent_id=tmp_channel, prefix_match=True)
+                    return self.search_name(name,parent_id=tmp_channel, prefix_match=True)
                 else:
-                    candidates = self.__convert_name2id_internal(path,parent_id=tmp_channel, prefix_match=False)
+                    candidates = self.search_name(name,parent_id=tmp_channel, prefix_match=False)
                     if not candidates:
                         return []
                     else:
                         tmp_channel = candidates[0]
         return [tmp_channel]
 
-    def __convert_name2id_internal(self, channel_name:str, parent_id:Optional[str]=None, child_id:Optional[str]=None, is_root:bool=False, prefix_match: bool = False) -> List[str]:
+    def search_name(self, channel_name:str, parent_id:Optional[str]=None, child_id:Optional[str]=None, is_root:bool=False, prefix_match: bool = False) -> List[str]:
         '''
-            convert_name2idの内部実装
+            特定の相対位置関係をもつチャンネル名からチャンネルIDを取得する
         '''
         candidates = []
         #TODO ネストしたチャンネルの検索
@@ -155,7 +156,8 @@ class ChannelService(IChannelService):
                     if chnl.name.startswith(channel_name):
                         candidates.append(chnl.id)
                 else:
-                    return [chnl.id]
+                    if chnl.name == channel_name:
+                        return [chnl.id]
         return candidates
 
     def print_channel_tree(self, channel_id:str, recursive:bool=False, archived:bool=False):
