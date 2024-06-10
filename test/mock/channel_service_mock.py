@@ -35,9 +35,26 @@ class ChannelSeerviceMock(IChannelService):
         raise NotImplementedError("Not Implemented")
     
     def convert_path2idperfect(self, current_channel_id: str, path_:str) -> Optional[str]:
-        if current_channel_id == "root_channel" and path_ == "channel1_name/channel1_1_name":
+        if current_channel_id == "root_channel" and path_ == ".":
+            return "root_channel"
+        elif current_channel_id == "root_channel" and path_ == "channel1_name/channel1_1_name":
             return "channel1_1"
-        raise NotImplementedError("Not Implemented")
+        else:
+            raise NotImplementedError("Not Implemented")
     
     def print_channel_tree(self, channel_id: str, recursive: bool = False, archived: bool = False):
-        print("print_channel_tree")
+        if channel_id == "root_channel":
+            if recursive:
+                print("root_channel_name")
+                print("--channel1_name")
+                print("----channel1_1_name")
+                print("--channel2_name")
+            else:
+                print("root_channel_name")
+                print("--channel1_name")
+                print("--channel2_name")
+        elif channel_id == "channel1":
+                print("channel1_name")
+                print("--channel1_1_name")
+        elif channel_id == "channel2":
+            print("channel2_name")

@@ -1,7 +1,7 @@
 import argparse
-from src.services.channel_service import ChannelService
+from src.services.channel_service import ChannelService, IChannelService
 from src.shell.session import Session
-from src.shell.environment import Environment
+from src.shell.environment import Environment, IEnvironment
 
 def ls(path:str, recursive:bool=False, all:bool=False):
     """lsコマンド: チャンネル一覧を表示します"""
@@ -10,7 +10,9 @@ def ls(path:str, recursive:bool=False, all:bool=False):
     session.load_session()
     env = Environment()
     channel_service = ChannelService(session)
-        
+    _ls(path, channel_service, env, recursive=recursive, all=all)
+    
+def _ls(path:str, channel_service: IChannelService, env: IEnvironment, recursive:bool=False, all:bool=False):
     # チャンネルのpathからidを取得
     channel_id = channel_service.convert_path2idperfect(env.current_channel_id, path)
     if channel_id is None:

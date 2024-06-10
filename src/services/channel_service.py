@@ -123,7 +123,7 @@ class ChannelService(IChannelService):
             if name == "" or name == ".":
                 continue
             elif name == "..":
-                chnl = self.env.get_channel(channel_id=tmp_channel)
+                chnl = self.channel_api.get_channel(channel_id=tmp_channel)
                 if chnl.parent_id is None:
                     return []
                 else:
