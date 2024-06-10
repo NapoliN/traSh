@@ -45,7 +45,7 @@ class InputReaderForTraQ(InputReader):
         """
         channel_service = ChannelService(self.session)
         current_id = self.env.current_channel_id
-        candidates_id = channel_service.convert_name2idprefix(current_id, prefix)
+        candidates_id = channel_service.convert_path2idprefix(current_id, prefix)
         candidates_name = [channel_service.get_channel_name(ch_id) for ch_id in candidates_id]
         return candidates_name
         
@@ -81,7 +81,7 @@ class TraQShell(ShellBase):
                     raise Exception("ホームチャンネルが取得できませんでした")
                 else:
                     channel_id = user_detail.home_channel
-                    channel_name = channel_service.convert_id2name(channel_id)
+                    channel_name = channel_service.convert_id2fullpath(channel_id)
                     self.environment.set_current_channel(channel_id, channel_name)
                 break
             except Exception as e:
@@ -107,7 +107,7 @@ class TraQShell(ShellBase):
                     ch_name = channelIO.channel_name
                     current_channel_id = self.environment.current_channel_id
                     # ch_nameのチャンネルIDに書き込む
-                    ch_id = channel_service.convert_name2idperfect(current_channel_id,ch_name)
+                    ch_id = channel_service.convert_path2idperfect(current_channel_id,ch_name)
                     if ch_id is None:
                         raise Exception("チャンネルが見つかりませんでした")
                     message_service.post_message(ch_id, content)

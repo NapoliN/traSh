@@ -43,9 +43,9 @@ class ChannelService:
         chnl = self.channel_api.get_channel(channel_id=channel_id)
         return chnl.name
     
-    def convert_id2name(self, channel_id:str) -> str:
+    def convert_id2fullpath(self, channel_id:str) -> str:
         '''
-            チャンネルIDをパス名に変換する
+            チャンネルIDをチャンネルへのフルパスに変換する
             
             Args:
                 channel_id: チャンネルID
@@ -54,13 +54,19 @@ class ChannelService:
         if chnl.parent_id is None:
             return "#" + chnl.name
         else:
-            return self.convert_id2name(chnl.parent_id) + "/" + chnl.name
+            return self.convert_id2fullpath(chnl.parent_id) + "/" + chnl.name
 
-    def convert_name2idprefix(self, current_channel_id: str, path_:str) -> List[str]:
-        return self.convert_name2id(current_channel_id, path_, prefix_match=True)
+    def convert_path2idprefix(self, current_channel_id: str, path_:str) -> List[str]:
+        '''
+            パスからチャンネルIDを前方一致で検索し、候補を返す
+        '''
+        return self.__convert_name2id(current_channel_id, path_, prefix_match=True)
     
-    def convert_name2idperfect(self, current_channel_id: str, path_:str) -> Optional[str]:
-        match = self.convert_name2id(current_channel_id, path_, prefix_match=False)
+    def convert_path2idperfect(self, current_channel_id: str, path_:str) -> Optional[str]:
+        '''
+            パスからチャンネルIDを完全一致で取得する
+        '''
+        match = self.__convert_name2id(current_channel_id, path_, prefix_match=False)
         if len(match) == 1:
             return match[0]
         elif len(match) == 0:
@@ -68,7 +74,7 @@ class ChannelService:
         else:
             raise Exception("FatalError: 複数のチャンネルがマッチしました")
     
-    def convert_name2id(self, current_channel_id: str, path_:str, prefix_match:bool = False) -> List[str]:
+    def __convert_name2id(self, current_channel_id: str, path_:str, prefix_match:bool = False) -> List[str]:
         '''
             パス名をチャンネルIDに変換する
             

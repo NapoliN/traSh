@@ -34,13 +34,13 @@ def test_get_channel_name():
     assert root_channel_name == "root_channel_name"
     
 def test_convert_id2name():
-    channel1_name = channel_service.convert_id2name("channel1")
+    channel1_name = channel_service.convert_id2fullpath("channel1")
     assert channel1_name == "#root_channel_name/channel1_name"
     
 def test_convert_name2idprefix():
-    channel1_1_id = channel_service.convert_name2idprefix("root_channel", "channel1_name/channel")
+    channel1_1_id = channel_service.convert_path2idprefix("root_channel", "channel1_name/channel")
     assert channel1_1_id == ["channel1_1"]
     
 def test_convert_name2idperfect():
-    channel1_1_id = channel_service.convert_name2idperfect("root_channel", "channel1_name/channel1_1_name")
+    channel1_1_id = channel_service.convert_path2idperfect("root_channel", "channel1_name/channel1_1_name")
     assert channel1_1_id == "channel1_1"
