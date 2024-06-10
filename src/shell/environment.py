@@ -1,7 +1,7 @@
 import os
 from typing import Optional, List
 from abc import ABCMeta, abstractmethod
-from openapi.openapi_client.models import ChannelList, Channel
+from openapi.openapi_client.models import ChannelList, Channel, User
 
 class IEnvironment(metaclass=ABCMeta):
     @abstractmethod
