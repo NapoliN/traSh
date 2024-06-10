@@ -1,12 +1,30 @@
 import dataclasses
 from typing import Optional, List
+from abc import ABCMeta, abstractmethod
 
 from openapi.openapi_client.api import ChannelApi
-from openapi.openapi_client.models import ChannelList
+from openapi.openapi_client.models import ChannelList, Channel
 from src.shell.session import Session
 from src.shell.environment import Environment
 
-class ChannelService:
+class IChannelService(metaclass=ABCMeta):
+    @abstractmethod
+    def get_channel_name(self, channel_id:str) -> str:
+        pass
+    @abstractmethod
+    def convert_id2fullpath(self, channel_id:str) -> str:
+        pass
+    @abstractmethod
+    def convert_path2idprefix(self, current_channel_id: str, path_:str) -> List[str]:
+        pass
+    @abstractmethod
+    def convert_path2idperfect(self, current_channel_id: str, path_:str) -> Optional[str]:
+        pass
+    @abstractmethod
+    def print_channel_tree(self, channel_id:str, recursive:bool=False, archived:bool=False):
+        pass
+
+class ChannelService(IChannelService):
     '''
         チャンネル取得関連のサービスクラス
     '''
@@ -14,24 +32,21 @@ class ChannelService:
     def __init__(self, session: Session):
         self.session = session
         self.channel_api = ChannelApi(api_client=session.client)
-        self.__channels: Optional[ChannelList] = None
+        self.env = Environment()
         
     @property
     def channels(self) -> ChannelList:
-        if self.__channels is not None:
-            return self.__channels
-        env = Environment()
-        chnls_str = env.channel_list
-        if chnls_str is None:
-            chnls_loaded = self.channel_api.get_channels()
-            self.__channels = chnls_loaded
-            env.channel_list = chnls_loaded.to_json()
-            return chnls_loaded       
-        chnls = ChannelList.from_json(chnls_str)
-        if chnls is None:
-            raise Exception()
-        self.__channels = chnls
-        return chnls
+        channel_ids = self.env.get_channel_ids()
+        if channel_ids is None:
+            chnls = self.channel_api.get_channels()
+            self.env.set_channels(chnls)
+            return chnls
+        
+        chnl_list: List[Channel] = []        
+        for channel_id in channel_ids:
+            chnl = self.env.get_channel(channel_id=channel_id)
+            chnl_list.append(chnl)
+        return ChannelList(public=chnl_list)
 
     def get_channel_name(self, channel_id:str) -> str:
         '''
@@ -40,7 +55,10 @@ class ChannelService:
             Args:
                 channel_id: チャンネルID
         '''
-        chnl = self.channel_api.get_channel(channel_id=channel_id)
+        try:
+            chnl = self.env.get_channel(channel_id=channel_id)
+        except:
+            chnl = self.channel_api.get_channel(channel_id=channel_id)
         return chnl.name
     
     def convert_id2fullpath(self, channel_id:str) -> str:

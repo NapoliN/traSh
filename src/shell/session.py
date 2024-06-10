@@ -1,4 +1,5 @@
 from typing import Optional
+from abc import ABCMeta, abstractmethod
 import re
 import certifi
 import os
@@ -12,7 +13,18 @@ class LoginFailException(Exception):
         ログインに失敗したときの例外
     '''
 
-class Session:
+class SessionBase(metaclass=ABCMeta):
+    @abstractmethod
+    def load_session(self):
+        pass
+    @abstractmethod
+    def try_login(self, username: str, password: str):
+        pass
+    @abstractmethod
+    def try_exit(self):
+        pass
+
+class Session(SessionBase):
     '''
         sessionクラス
     '''
