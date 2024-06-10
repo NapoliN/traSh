@@ -1,7 +1,6 @@
 import getpass
-from typing import List
+from typing import List, Tuple
 import argparse
-import sys
 
 from .shell import ShellBase, ChanneiIO
 from .session import Session
@@ -39,16 +38,18 @@ class InputReaderForTraQ(InputReader):
         self.env = Environment()
         self.session = session
         
-    def completion(self, prefix: str) -> List[str]:
+    def completion(self, prefix: str) -> Tuple[List[str], int]:
         """
             チャンネル名の補完を行う
         """
+        # 消す文字数の数
+        del_count = len(prefix.split('/')[-1])
+        
         channel_service = ChannelService(self.session)
         current_id = self.env.current_channel_id
         candidates_id = channel_service.convert_path2idprefix(current_id, prefix)
         candidates_name = [channel_service.get_channel_name(ch_id) for ch_id in candidates_id]
-        return candidates_name
-        
+        return candidates_name, del_count
 
 class TraQShell(ShellBase):
     '''

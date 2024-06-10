@@ -2,7 +2,7 @@ import sys
 import termios
 import tty
 import select
-from typing import List
+from typing import List, Tuple
 
 
 def clear_last_n_chars(n: int):
@@ -26,11 +26,11 @@ class InputReader():
         termios.tcsetattr(sys.stdin, termios.TCSADRAIN, old_settings)
         return cmd
     
-    def completion(self, prefix: str) -> List[str]:
+    def completion(self, prefix: str) -> Tuple[List[str], int]:
         '''
             補完候補を返すhook関数
         '''
-        return []
+        return [], 0
         
     def __read(self, prompt: str, init: str) -> str:
         try:
@@ -59,13 +59,12 @@ class InputReader():
                             if len(splited) < 1: #TODO コマンド補完への対応
                                 continue
                             prefix =  splited[-1]
-                            self.candidate = self.completion(prefix)
+                            self.candidate, del_count = self.completion(prefix)
                             if(not self.candidate):
                                 continue
                             elif len(self.candidate) == 1:
-                                n_prefix = len(prefix)
-                                clear_last_n_chars(n_prefix)
-                                self.input_buffer = self.input_buffer[:-n_prefix] + list(self.candidate[0])
+                                clear_last_n_chars(del_count)
+                                self.input_buffer = self.input_buffer[:-del_count] + list(self.candidate[0])
                                 print(*self.candidate, end='', flush=True)
                                 self.candidate.clear()
                             else:
