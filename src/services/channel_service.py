@@ -6,6 +6,7 @@ from openapi.openapi_client.api import ChannelApi
 from openapi.openapi_client.models import ChannelList, Channel
 from src.shell.session import Session
 from src.shell.environment import Environment
+from src.shell.api_cache import APICache
 
 class IChannelService(metaclass=ABCMeta):
     @abstractmethod
@@ -33,22 +34,37 @@ class ChannelService(IChannelService):
         self.session = session
         self.channel_api = ChannelApi(api_client=session.client)
         self.env = Environment()
+        self.cache = APICache() #TODO あとで隠蔽する
         
     @property
     #TODO 環境変数が長すぎてArgument list too longといわれる
     def channels(self) -> ChannelList:
-        return self.channel_api.get_channels()
-        channel_ids = self.env.get_channel_ids()
+        channel_ids = self.cache.get_channel_ids()
         if channel_ids is None:
             chnls = self.channel_api.get_channels()
-            self.env.set_channels(chnls)
+            self.cache.set_channels(chnls)
             return chnls
         
         chnl_list: List[Channel] = []        
         for channel_id in channel_ids:
-            chnl = self.env.get_channel(channel_id=channel_id)
+            chnl = self.get_channel(channel_id=channel_id)
             chnl_list.append(chnl)
         return ChannelList(public=chnl_list)
+
+    def get_channel(self, channel_id:str) -> Channel:
+        '''
+            チャンネルIDからチャンネルを取得する
+            
+            Args:
+                channel_id: チャンネルID
+        '''
+        try:
+            return self.cache.get_channel(channel_id=channel_id)
+        except:
+            print("missed ", channel_id)
+            chnl = self.channel_api.get_channel(channel_id=channel_id)
+            self.cache.set_channel(chnl)
+            return chnl
 
     def get_channel_name(self, channel_id:str) -> str:
         '''
@@ -57,11 +73,9 @@ class ChannelService(IChannelService):
             Args:
                 channel_id: チャンネルID
         '''
-        try:
-            chnl = self.env.get_channel(channel_id=channel_id)
-        except:
-            chnl = self.channel_api.get_channel(channel_id=channel_id)
-        return chnl.name
+
+        return self.get_channel(channel_id=channel_id).name
+
     
     def convert_id2fullpath(self, channel_id:str) -> str:
         '''
@@ -125,7 +139,7 @@ class ChannelService(IChannelService):
             if name == "" or name == ".":
                 continue
             elif name == "..":
-                chnl = self.channel_api.get_channel(channel_id=tmp_channel)
+                chnl = self.get_channel(channel_id=tmp_channel)
                 if chnl.parent_id is None:
                     return []
                 else:
@@ -134,14 +148,30 @@ class ChannelService(IChannelService):
             else:
                 # 子チャンネルを検索
                 if prefix_match and i == len(paths) - 1:
-                    return self.search_name(name,parent_id=tmp_channel, prefix_match=True)
+                    return self.search_name_with_parent(name,parent_id=tmp_channel, prefix_match=True)
                 else:
-                    candidates = self.search_name(name,parent_id=tmp_channel, prefix_match=False)
+                    candidates = self.search_name_with_parent(name,parent_id=tmp_channel, prefix_match=False)
                     if not candidates:
                         return []
                     else:
                         tmp_channel = candidates[0]
         return [tmp_channel]
+
+    def search_name_with_parent(self, channel_name: str, parent_id: str, prefix_match: bool = False) -> List[str]:
+        '''
+            特定の親チャンネルを持つチャンネル名からチャンネルIDを取得する
+        '''
+        parent_chnl = self.get_channel(parent_id)
+        candidates = []
+        for child_id in parent_chnl.children:
+            child_chnl = self.get_channel(child_id)
+            if prefix_match:
+                if child_chnl.name.startswith(channel_name):
+                    candidates.append(child_id)
+            else:
+                if child_chnl.name == channel_name:
+                    return [child_id]
+        return candidates
 
     def search_name(self, channel_name:str, parent_id:Optional[str]=None, child_id:Optional[str]=None, is_root:bool=False, prefix_match: bool = False) -> List[str]:
         '''
@@ -155,7 +185,6 @@ class ChannelService(IChannelService):
             # ルートから探索 -> 親IDがない
             if (parent_id is None or chnl.parent_id == parent_id) and (child_id is None or chnl.id == child_id) and (not is_root or chnl.parent_id is None):
                 if prefix_match:
-                    return []
                     if chnl.name.startswith(channel_name):
                         candidates.append(chnl.id)
                 else:

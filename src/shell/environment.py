@@ -15,15 +15,6 @@ class IEnvironment(metaclass=ABCMeta):
     @abstractmethod
     def current_channel_name(self) -> str:
         pass
-    @abstractmethod
-    def set_channels(self, channels: ChannelList):
-        pass
-    @abstractmethod
-    def get_channel_ids(self) -> Optional[List[str]]:
-        pass
-    @abstractmethod
-    def get_channel(self, channel_id:str) -> Channel:
-        pass
 
 class Environment(IEnvironment):
     '''
@@ -60,36 +51,3 @@ class Environment(IEnvironment):
         if name is None:
             raise Exception("No Channel Found. Please set QTRASH_CHANNEL_NAME environment variable.")
         return name
-        
-    def set_channels(self, channels: ChannelList):
-        '''
-            チャンネルリストの情報を環境変数に設定する
-        '''
-        chnls = ""
-        for chnl in channels.public:
-            os.environ["QTRASH_CHANNEL_ID_" + chnl.id] = chnl.to_json()
-            chnls += chnl.id + ";"
-        chnls = chnls.rstrip(";")
-        os.environ.setdefault("QTRASH_CHANNEL_LIST", chnls)
-        
-    def get_channel_ids(self) -> Optional[List[str]]:
-        '''
-            チャンネルIDのリストを取得する
-        '''
-        raw = os.environ.get("QTRASH_CHANNEL_LIST")
-        if raw is None:
-            return None
-        # raw文字列をセミコロン区切りでパース
-        return raw.split(";")
-
-    def get_channel(self, channel_id:str) -> Channel:
-        '''
-            チャンネルIDからチャンネル名を取得する
-        '''
-        row = os.environ.get("QTRASH_CHANNEL_ID_" + channel_id)
-        if row is None:
-            raise Exception("Channel Not Found")
-        chnl = Channel.from_json(row)
-        if chnl is None:
-            raise Exception("Parse Error")
-        return chnl
