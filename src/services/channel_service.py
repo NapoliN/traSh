@@ -35,7 +35,9 @@ class ChannelService(IChannelService):
         self.env = Environment()
         
     @property
+    #TODO 環境変数が長すぎてArgument list too longといわれる
     def channels(self) -> ChannelList:
+        return self.channel_api.get_channels()
         channel_ids = self.env.get_channel_ids()
         if channel_ids is None:
             chnls = self.channel_api.get_channels()
@@ -78,13 +80,13 @@ class ChannelService(IChannelService):
         '''
             パスからチャンネルIDを前方一致で検索し、候補を返す
         '''
-        return self.__convert_name2id(current_channel_id, path_, prefix_match=True)
+        return self.__convert_path2id(current_channel_id, path_, prefix_match=True)
     
     def convert_path2idperfect(self, current_channel_id: str, path_:str) -> Optional[str]:
         '''
             パスからチャンネルIDを完全一致で取得する
         '''
-        match = self.__convert_name2id(current_channel_id, path_, prefix_match=False)
+        match = self.__convert_path2id(current_channel_id, path_, prefix_match=False)
         if len(match) == 1:
             return match[0]
         elif len(match) == 0:
@@ -92,7 +94,7 @@ class ChannelService(IChannelService):
         else:
             raise Exception("FatalError: 複数のチャンネルがマッチしました")
     
-    def __convert_name2id(self, current_channel_id: str, path_:str, prefix_match:bool = False) -> List[str]:
+    def __convert_path2id(self, current_channel_id: str, path_:str, prefix_match:bool = False) -> List[str]:
         '''
             パス名をチャンネルIDに変換する
             
@@ -153,11 +155,15 @@ class ChannelService(IChannelService):
             # ルートから探索 -> 親IDがない
             if (parent_id is None or chnl.parent_id == parent_id) and (child_id is None or chnl.id == child_id) and (not is_root or chnl.parent_id is None):
                 if prefix_match:
+                    return []
                     if chnl.name.startswith(channel_name):
                         candidates.append(chnl.id)
                 else:
                     if chnl.name == channel_name:
                         return [chnl.id]
+        if prefix_match:
+            #candidates.clear()
+            return [] #ここはout
         return candidates
 
     def print_channel_tree(self, channel_id:str, recursive:bool=False, archived:bool=False):

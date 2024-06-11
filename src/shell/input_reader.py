@@ -74,6 +74,16 @@ class InputReader():
                                     print(c, end=' ')
                                 print()
                                 return self.__read(prompt, input_)
+                    #カーソルキー処理
+                    elif char == '\x1b':
+                        next_char = sys.stdin.read(1)
+                        if next_char == '[':
+                            direction = sys.stdin.read(1)
+                            if direction == 'A' or direction == 'B':
+                                continue
+                            elif direction == 'C' or direction == 'D':
+                                # 制御文字の出力、入力バッファには入れない
+                                print(char + next_char + direction, end='', flush=True)
                     else:
                         self.input_buffer.append(char)
                         print(char, end='', flush=True)
