@@ -25,7 +25,7 @@ class MessageService():
         self.channel_api = ChannelApi(api_client=self.session.client)
         self.user_api = UserApi(api_client=self.session.client)
         
-    def get_messages(self, channel_id: str, limit: int = 10):
+    def get_messages(self, channel_id: str, limit: int = 10, order_desc: bool = True):
         '''
             チャンネルIDからメッセージを取得する
             
@@ -33,7 +33,8 @@ class MessageService():
                 channel_id: チャンネルID
                 limit: 取得するメッセージ数
         '''
-        messages = self.channel_api.get_messages(channel_id=channel_id, limit=limit)
+        order = "desc" if order_desc else "asc"
+        messages = self.channel_api.get_messages(channel_id=channel_id, limit=limit,order=order)
         #TODO embedとかの処理
         return [Message(username=self.user_api.get_user(msg.user_id).name, content=msg.content, created_at=msg.created_at) for msg in messages]
     

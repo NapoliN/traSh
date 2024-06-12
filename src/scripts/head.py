@@ -1,0 +1,34 @@
+import argparse
+import os
+from typing import List
+
+from src.services import ChannelService, MessageService
+from src.shell.session import Session
+from src.shell.environment import Environment
+
+def cat(channels: List[str], number:int):
+    """
+        headコマンド: チャンネルのメッセージを表示します
+    """
+    session = Session()
+    session.load_session()
+    env = Environment()
+    message_service = MessageService(session)
+
+    for channel_path in channels:
+        channel_id = ChannelService(session).convert_path2idperfect(env.current_channel_id, channel_path)
+        if channel_id is None:
+            print(f"チャンネル{channel_path}が見つかりませんでした")
+            continue
+        messages = message_service.get_messages(channel_id,limit=number)
+        for msg in reversed(messages):
+            print(msg)
+    
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser()
+    parser.add_argument("channels", nargs="+",default="")
+    parser.add_argument("-n","--number", type=int, default=10)
+    args = parser.parse_args()
+    channels:List[str] = args.channels
+    number= args.number
+    cat(channels, number)

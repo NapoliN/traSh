@@ -173,7 +173,7 @@ class ChannelService(IChannelService):
                     return [child_id]
         return candidates
 
-    def search_name(self, channel_name:str, parent_id:Optional[str]=None, child_id:Optional[str]=None, is_root:bool=False, prefix_match: bool = False) -> List[str]:
+    def search_name(self, channel_name:str, child_id:Optional[str]=None, is_root:bool=False, prefix_match: bool = False) -> List[str]:
         '''
             特定の相対位置関係をもつチャンネル名からチャンネルIDを取得する
         '''
@@ -183,7 +183,7 @@ class ChannelService(IChannelService):
             # 子に向かって検索 -> 親のIDが一致
             # 親に向かって検索 -> 子のIDが一致
             # ルートから探索 -> 親IDがない
-            if (parent_id is None or chnl.parent_id == parent_id) and (child_id is None or chnl.id == child_id) and (not is_root or chnl.parent_id is None):
+            if (child_id is None or chnl.id == child_id) and (not is_root or chnl.parent_id is None):
                 if prefix_match:
                     if chnl.name.startswith(channel_name):
                         candidates.append(chnl.id)
