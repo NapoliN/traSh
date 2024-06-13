@@ -1,25 +1,34 @@
+'''
+    lsコマンド: チャンネル一覧を表示します
+'''
 import argparse
+
 from src.services.channel_service import ChannelService, IChannelService
 from src.shell.session import Session
 from src.shell.environment import Environment, IEnvironment
 
-def ls(path:str, recursive:bool=False, all:bool=False):
-    """lsコマンド: チャンネル一覧を表示します"""
-    
+def ls(path:str, recursive:bool=False, archived:bool=False):
+    """
+        lsコマンド: チャンネル一覧を表示します
+        Args:
+            path: チャンネルのパス
+            recursive: 再帰的に表示するかどうか
+            archived: アーカイブ済みのチャンネルも表示するかどうか
+    """
     session = Session()
     session.load_session()
     env = Environment()
     channel_service = ChannelService(session)
-    _ls(path, channel_service, env, recursive=recursive, all=all)
-    
-def _ls(path:str, channel_service: IChannelService, env: IEnvironment, recursive:bool=False, all:bool=False):
+    _ls(path, channel_service, env, recursive=recursive, archived=archived)
+
+def _ls(path:str, channel_service: IChannelService, env: IEnvironment, recursive:bool=False, archived:bool=False):
     # チャンネルのpathからidを取得
     channel_id = channel_service.convert_path2idperfect(env.current_channel_id, path)
     if channel_id is None:
         print("チャンネルが見つかりませんでした")
         return
-    channel_service.print_channel_tree(channel_id, recursive=recursive, archived=all)
-    
+    channel_service.print_channel_tree(channel_id, recursive=recursive, archived=archived)
+
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("path", default=".")

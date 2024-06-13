@@ -1,14 +1,17 @@
+'''
+    traQ用のシェル
+'''
 import getpass
 from typing import List, Tuple
 import argparse
 
-from .shell import ShellBase, ChanneiIO
-from .session import Session
-from .environment import Environment
-from openapi.openapi_client.api.me_api import MeApi
+from src.shell.shell import ShellBase, ChanneiIO
+from src.shell.session import Session, LoginFailException
+from src.shell.environment import Environment
+from src.shell.input_reader import InputReader
 from src.services import ChannelService, MessageService
 from src.scripts.cd import cd
-from src.shell.input_reader import InputReader
+from openapi.openapi_client.api.me_api import MeApi
 
 TRASH_LOGO = """
 MMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMM
@@ -32,7 +35,12 @@ MMMMMMMMNJ<;jMMMD;;;;dMMN<;jjMMMMMMMMMMMMMMMMMNJ+++jj&MMMNd5++++++jMMMMMMMMMMMMN
 MMMMMMMMMMMNMMMMe++++dMMMNMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMM
 """
 
+
+
 class InputReaderForTraQ(InputReader):
+    '''
+        traQ用のInputReader
+    '''
     def __init__(self, session: Session):
         super().__init__()
         self.env = Environment()
@@ -67,7 +75,7 @@ class TraQShell(ShellBase):
 
     def start(self):
         '''
-        
+            シェルの起動
         '''
         # ログイン処理
         while True:
@@ -79,22 +87,23 @@ class TraQShell(ShellBase):
                 user_detail = me_api.get_me()
                 channel_service = ChannelService(self.session)
                 if user_detail.home_channel is None:
-                    raise Exception("ホームチャンネルが取得できませんでした")
+                    #TODO ホームチャンネルを#generalに設定する
+                    raise Exception("ホームチャンネルが取得できませんでした。")
                 else:
                     channel_id = user_detail.home_channel
                     channel_name = channel_service.convert_id2fullpath(channel_id)
                     self.environment.set_current_channel(channel_id, channel_name)
                 break
-            except Exception as e:
+            except LoginFailException as e:
                 print(f'Login Failed: {e}')
         print(TRASH_LOGO)
         print("welcome to traSh'ell!")
         self.run()
-        
+
     def preinput(self):
         self.prompt = f'{self.environment.current_channel_name}> '
         return super().preinput()
-    
+
     def postcmd(self):
         # channelIOの処理
         if self.channelIOs:

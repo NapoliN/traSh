@@ -1,9 +1,11 @@
+'''
+    標準入力のstreamを制御するモジュール
+'''
 import sys
 import termios
 import tty
 import select
 from typing import List, Tuple
-
 
 def clear_last_n_chars(n: int):
     """
@@ -25,13 +27,13 @@ class InputReader():
         cmd = self.__read(prompt, "")
         termios.tcsetattr(sys.stdin, termios.TCSADRAIN, old_settings)
         return cmd
-    
+
     def completion(self, prefix: str) -> Tuple[List[str], int]:
         '''
             補完候補を返すhook関数
         '''
         return [], 0
-        
+
     def __read(self, prompt: str, init: str) -> str:
         try:
             print(prompt, end=' ', flush=True)
@@ -47,12 +49,10 @@ class InputReader():
                         self.input_buffer.clear()
                         self.candidate.clear()
                         return cmd
-                    
                     elif char == '\b' or char == '\x7f': # 入力中の文字消去
                         if self.input_buffer:
                             self.input_buffer.pop()
-                            clear_last_n_chars(1)
-                            
+                            clear_last_n_chars(1)    
                     elif char == '\t': # 補完処理
                         if self.input_buffer:
                             input_ = ''.join(self.input_buffer)
@@ -61,7 +61,7 @@ class InputReader():
                                 continue
                             prefix =  splited[-1]
                             self.candidate, del_count = self.completion(prefix)
-                            if(not self.candidate):
+                            if not self.candidate:
                                 continue
                             elif len(self.candidate) == 1:
                                 clear_last_n_chars(del_count)
@@ -88,10 +88,4 @@ class InputReader():
                         self.input_buffer.append(char)
                         print(char, end='', flush=True)
         except KeyboardInterrupt as e:
-            raise e 
-
-if __name__ == "__main__":
-    reader = InputReader()
-
-    input_ = reader.read(">>")
-    print(input_)
+            raise e

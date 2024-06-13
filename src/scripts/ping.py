@@ -1,3 +1,6 @@
+'''
+    pingコマンド: pongを出力する
+'''
 
 def ping():
     print("pong")

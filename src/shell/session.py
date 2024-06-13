@@ -51,7 +51,7 @@ class Session(SessionBase):
         try:
             res = auth_api.login_with_http_info(post_login_request=PostLoginRequest(name=username, password=password))
             if res.status_code != 204:
-                raise LoginFailException("IDもしくはパスワードが違います")
+                raise LoginFailException("IDもしくはパスワードが違います。")
         except Exception as e:
             raise LoginFailException("apiに接続できませんでした。") from e
         assert res.headers is not None

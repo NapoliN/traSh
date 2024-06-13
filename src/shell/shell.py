@@ -7,8 +7,8 @@ import os
 import enum
 import dataclasses
 from typing import List, Optional, Generator, Tuple
-from .tokenizer import tokenize
-from .ast_ import ASTBuilder, Node, NodeCommand, NodePipe, NodeRedirect, NodeConcat
+from src.shell.tokenizer import tokenize
+from src.shell.ast_ import ASTBuilder, Node, NodeCommand, NodePipe, NodeRedirect, NodeConcat
 
 import subprocess
                 
@@ -32,13 +32,13 @@ class ShellBase():
     def __init__(self):
         self.readable = False
         self.prompt = '>>> '
-        
+
     def read(self) -> str:
         '''
             標準入力を読み込む
         '''
         return input(self.prompt)
-    
+
     def run(self):
         while True:
             self.preinput()
@@ -50,34 +50,29 @@ class ShellBase():
             tokens = tokenize(cmd)
             ast = ASTBuilder().build_ast(tokens)
             self.__interpret(ast)
-        pass
     
     def preinput(self):
         '''
             入力前のhook関数
         '''
-        pass
     
     def precmd(self):
         '''
             コマンド実行前のhook関数
         '''
-        pass
-    
+
     def postcmd(self):
         '''
             コマンド実行後のhook関数
         '''
-        pass
-    
+
     def do_cd(self, args:List[str]):
         '''
             cdコマンド
             これだけは親プロセスからやる必要がある
             子クラスで実装する
         '''
-        pass
-    
+
     def __interpret(self, ast:Node):
         '''
             ASTに従ってコマンドを実行する
@@ -110,7 +105,7 @@ class ShellBase():
             NodeCommand訪問時にyieldでコマンドを返す
         '''
         # コマンド処理
-        if type(ast) == NodeCommand:
+        if isinstance(ast, NodeCommand):
             # リダイレクト処理
             old_stdin = sys.stdin
             old_stdout = sys.stdout
@@ -133,9 +128,9 @@ class ShellBase():
             if sys.stdin != old_stdin:
                 sys.stdin.close()
                 sys.stdin = old_stdin
-            
+
         # パイプ処理
-        if type(ast) == NodePipe:
+        if isinstance(ast,NodePipe):
             # 標準出力をIOにつなぐ
             old_stdout = sys.stdout
             sys.stdout = io.StringIO()
@@ -153,8 +148,8 @@ class ShellBase():
                 yield t
             # 標準入力の復帰
             sys.stdin = old_stdin
-        
-        if type(ast) == NodeConcat:
+
+        if isinstance(ast,NodeConcat):
             left = self.__interpret_internal(ast.left)
             for t in left:
                 yield t
@@ -179,9 +174,3 @@ def path2module(path:str) -> str:
     '''
     # ./ と .pyを取り除いて/を.で置換
     return path[2:].replace('/','.')[:-3]
-
-if __name__ == '__main__':
-    myshell = ShellBase()
-    myshell.run()   
-    
-    

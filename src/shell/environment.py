@@ -1,9 +1,13 @@
+'''
+    環境変数を管理するクラス
+'''
 import os
-from typing import Optional, List
 from abc import ABCMeta, abstractmethod
-from openapi.openapi_client.models import ChannelList, Channel, User
 
 class IEnvironment(metaclass=ABCMeta):
+    '''
+        環境変数を管理するクラスのインターフェース
+    '''
     @abstractmethod
     def set_current_channel(self, channel_id:str, channel_name: str):
         pass
@@ -20,14 +24,14 @@ class Environment(IEnvironment):
     '''
         シェル実行時の環境を管理するクラス
     '''
-    
+
     def set_current_channel(self, channel_id:str, channel_name: str):
         '''
             現在いるチャンネルを設定する
         '''
         os.environ["QTRASH_CHANNEL"] = channel_id
         os.environ["QTRASH_CHANNEL_NAME"] = channel_name
-    
+
     @property
     def current_channel_id(self):
         '''
@@ -39,7 +43,7 @@ class Environment(IEnvironment):
         if ch is None:
             raise Exception("No Channel Found. Please set TRAQ_CHANNEL environment variable.")
         return ch
-        
+
     @property
     def current_channel_name(self) -> str:
         '''

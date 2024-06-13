@@ -11,8 +11,8 @@ class ChannelApiMock():
             Channel(id="channel2", name="channel2_name", parentId="root_channel", archived=False, force=False, topic="channel2_topic", children=[]),
             Channel(id="channel1_1", name="channel1_1_name", parentId="channel1", archived=False, force=False, topic="channel1_1_topic", children=[]),
         ]
-        
-    def get_channel(self, channel_id) -> Channel:
+
+    def get_channel(self, channel_id:str) -> Channel:
         for chnl in self.channels:
             if chnl.id == channel_id:
                 return chnl

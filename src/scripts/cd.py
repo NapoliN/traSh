@@ -1,5 +1,6 @@
-import argparse
-
+'''
+    cdコマンド: チャンネルを移動します
+'''
 from src.services.channel_service import ChannelService, IChannelService
 from src.shell.session import Session
 from src.shell.environment import Environment, IEnvironment
@@ -13,7 +14,7 @@ def cd(path:str):
     channel_service = ChannelService(session)
     env = Environment()
     _cd(path, channel_service, env)
-    
+
 def _cd(path: str, channel_service:IChannelService, env:IEnvironment):    
     channel_id = channel_service.convert_path2idperfect(env.current_channel_id, path)
     if channel_id is None:

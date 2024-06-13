@@ -1,5 +1,7 @@
+'''
+    tailコマンド: チャンネルのメッセージを古い順に表示します
+'''
 import argparse
-import os
 from typing import List
 
 from src.services import ChannelService, MessageService

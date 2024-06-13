@@ -18,13 +18,12 @@ ASTを生成するモジュール
 import enum
 import dataclasses
 from typing import List, Optional
-from .tokenizer import TokenType, Token
+from src.shell.tokenizer import TokenType, Token
 
-class SyntaxError(Exception):
+class ASTSyntaxError(Exception):
     '''
         構文エラーを表す例外
     '''
-    pass
 
 @dataclasses.dataclass
 class Node:
@@ -103,10 +102,10 @@ class NodeCommand(Node):
     cmd: str
     args : List[str]
     redirects : Optional[List[NodeRedirect]] = None
-    
+
     def __str__(self):
         return super().__str__() + f'({self.cmd}, {self.args}, {self.redirects})'
-    
+
     def tree(self, indent=0):
         return super().tree(indent) + f'{self.cmd} {self.args} {self.redirects}'
 
@@ -125,21 +124,21 @@ class ASTBuilder:
             現在のトークンを返す
         '''
         return self.tokens[self.index]
-    
+
     @property
     def is_end(self) -> bool:
         '''
             トークン列の終端に達しているかどうか
         '''
         return self.index >= len(self.tokens)
-    
+
     def pop_token(self) -> Token:
         '''
             トークンを一つ進める
         '''
         self.index += 1
         return self.tokens[self.index - 1]
-    
+
     def build_ast(self, tokens:List[Token]) -> Node:
         '''
             ASTを構築する
@@ -156,7 +155,7 @@ class ASTBuilder:
             exprを構築する
         '''
         if self.is_end:
-            raise SyntaxError('tokens is empty')
+            raise ASTSyntaxError('tokens is empty')
         cmd = self.build_cmd()
         if self.is_end:
             return cmd
@@ -174,27 +173,27 @@ class ASTBuilder:
             right = self.build_expr()
             return NodeOr(left=cmd, right=right)
         else:
-            raise SyntaxError(f'invalid token {token}')
+            raise ASTSyntaxError(f'invalid token {token}')
 
     def build_cmd(self) -> Node:
         '''
             cmdを構築する
         '''
         if self.is_end:
-            raise SyntaxError('tokens is empty')
-        
+            raise ASTSyntaxError('tokens is empty')
+
         token = self.pop_token()
         if token.type != TokenType.STRING:
-            raise SyntaxError('CMDNAME is not found')
+            raise ASTSyntaxError('CMDNAME is not found')
         cmdname = token.value
-        
+
         args = []
         while not self.is_end and self.current_token.type == TokenType.STRING:
             token = self.pop_token()
             args.append(token.value)
-        
+
         cmd = NodeCommand(cmd=cmdname, args=args)
-        
+
         if not self.is_end and (self.current_token.type == TokenType.REDIRECT_FILE_IN or self.current_token.type == TokenType.REDIRECT_FILE_OUT or self.current_token.type == TokenType.REDIRECT_CHANNEL_OUT):
             redirects = self.build_redirects()
             cmd.redirects = redirects
@@ -214,9 +213,9 @@ class ASTBuilder:
             elif token.type == TokenType.REDIRECT_CHANNEL_OUT:
                 type_ = NodeRedirect.Type.CHANNEL_OUT
             else:
-                raise SyntaxError(f'invalid token {token}')
+                raise ASTSyntaxError(f'invalid token {token}')
             if self.is_end or self.current_token.type != TokenType.STRING:
-                raise SyntaxError('FNAME is not found')
+                raise ASTSyntaxError('FNAME is not found')
             fname = self.pop_token().value
             redirects.append(NodeRedirect(type_=type_, fname=fname))
         return redirects

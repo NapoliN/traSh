@@ -61,12 +61,13 @@ class ChannelService(IChannelService):
             Args:
                 channel_id: チャンネルID
         '''
+
         try:
-            return self.cache.get_channel(channel_id=channel_id)
+            chnl = self.cache.get_channel(channel_id=channel_id)
         except NoCacheException:
             chnl = self.channel_api.get_channel(channel_id=channel_id)
             self.cache.set_channel(chnl)
-            return chnl
+        return chnl
 
     def get_channel_name(self, channel_id:str) -> str:
         '''

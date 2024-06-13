@@ -1,5 +1,7 @@
+'''
+    headコマンド: チャンネルのメッセージを新しい順に表示します
+'''
 import argparse
-import os
 from typing import List
 
 from src.services import ChannelService, MessageService
@@ -23,7 +25,7 @@ def cat(channels: List[str], number:int):
         messages = message_service.get_messages(channel_id,limit=number)
         for msg in reversed(messages):
             print(msg)
-    
+
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("channels", nargs="+",default="")
