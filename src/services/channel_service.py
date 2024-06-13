@@ -1,4 +1,6 @@
-import dataclasses
+'''
+    チャンネル取得関連のサービスクラス
+'''
 from typing import Optional, List
 from abc import ABCMeta, abstractmethod
 
@@ -6,9 +8,12 @@ from openapi.openapi_client.api import ChannelApi
 from openapi.openapi_client.models import ChannelList, Channel
 from src.shell.session import Session
 from src.shell.environment import Environment
-from src.shell.api_cache import APICache
+from src.shell.api_cache import APICache, NoCacheException
 
 class IChannelService(metaclass=ABCMeta):
+    '''
+        チャンネル取得関連のサービスクラスのインターフェース
+    '''
     @abstractmethod
     def get_channel_name(self, channel_id:str) -> str:
         pass
@@ -29,22 +34,20 @@ class ChannelService(IChannelService):
     '''
         チャンネル取得関連のサービスクラス
     '''
-
     def __init__(self, session: Session):
         self.session = session
         self.channel_api = ChannelApi(api_client=session.client)
         self.env = Environment()
         self.cache = APICache() #TODO あとで隠蔽する
-        
+
     @property
-    #TODO 環境変数が長すぎてArgument list too longといわれる
     def channels(self) -> ChannelList:
         channel_ids = self.cache.get_channel_ids()
         if channel_ids is None:
             chnls = self.channel_api.get_channels()
             self.cache.set_channels(chnls)
             return chnls
-        
+
         chnl_list: List[Channel] = []        
         for channel_id in channel_ids:
             chnl = self.get_channel(channel_id=channel_id)
@@ -60,8 +63,7 @@ class ChannelService(IChannelService):
         '''
         try:
             return self.cache.get_channel(channel_id=channel_id)
-        except:
-            print("missed ", channel_id)
+        except NoCacheException:
             chnl = self.channel_api.get_channel(channel_id=channel_id)
             self.cache.set_channel(chnl)
             return chnl
@@ -76,7 +78,6 @@ class ChannelService(IChannelService):
 
         return self.get_channel(channel_id=channel_id).name
 
-    
     def convert_id2fullpath(self, channel_id:str) -> str:
         '''
             チャンネルIDをチャンネルへのフルパスに変換する
@@ -95,7 +96,7 @@ class ChannelService(IChannelService):
             パスからチャンネルIDを前方一致で検索し、候補を返す
         '''
         return self.__convert_path2id(current_channel_id, path_, prefix_match=True)
-    
+
     def convert_path2idperfect(self, current_channel_id: str, path_:str) -> Optional[str]:
         '''
             パスからチャンネルIDを完全一致で取得する
