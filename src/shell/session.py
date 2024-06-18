@@ -7,6 +7,7 @@ import os
 from openapi.openapi_client import api_client
 from openapi.openapi_client.models import PostLoginRequest
 from openapi.openapi_client.api import AuthenticationApi, MeApi
+from openapi.openapi_client.configuration import Configuration
 
 class LoginFailException(Exception):
     '''
@@ -32,6 +33,9 @@ class Session(SessionBase):
         self.session_id = None
         # sessionを保持するためのクライアントを作成
         self.client = api_client.ApiClient(configuration=api_client.Configuration(ssl_ca_cert=certifi.where()))
+        config = Configuration()
+        config.host = config.get_host_settings()[2]["url"]
+        self.client.configuration = config
         
     def load_session(self):
         '''
