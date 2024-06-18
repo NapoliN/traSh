@@ -5219,7 +5219,7 @@ components:
         twitterId:
           type: string
           description: Twitter ID
-          pattern: '^[a-zA-Z0-9_]{1,15}$'
+          pattern: '^[a-zA-Z0-9_]{0,15}$'
         name:
           type: string
           pattern: '^[a-zA-Z0-9_-]{1,32}$'
@@ -5575,7 +5575,7 @@ components:
           description: 新しい表示名
         twitterId:
           type: string
-          pattern: '^[a-zA-Z0-9_]{1,15}$'
+          pattern: '^[a-zA-Z0-9_]{0,15}$'
           description: TwitterID
         bio:
           type: string
@@ -5610,7 +5610,7 @@ components:
         twitterId:
           type: string
           description: TwitterID
-          pattern: '^[a-zA-Z0-9_]{1,15}$'
+          pattern: '^[a-zA-Z0-9_]{0,15}$'
         state:
           $ref: '#/components/schemas/UserAccountState'
         role:

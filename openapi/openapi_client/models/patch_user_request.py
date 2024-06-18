@@ -40,8 +40,8 @@ class PatchUserRequest(BaseModel):
         if value is None:
             return value
 
-        if not re.match(r"^[a-zA-Z0-9_]{1,15}$", value):
-            raise ValueError(r"must validate the regular expression /^[a-zA-Z0-9_]{1,15}$/")
+        if not re.match(r"^[a-zA-Z0-9_]{0,15}$", value):
+            raise ValueError(r"must validate the regular expression /^[a-zA-Z0-9_]{0,15}$/")
         return value
 
     model_config = ConfigDict(

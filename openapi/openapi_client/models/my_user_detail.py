@@ -50,8 +50,8 @@ class MyUserDetail(BaseModel):
     @field_validator('twitter_id')
     def twitter_id_validate_regular_expression(cls, value):
         """Validates the regular expression"""
-        if not re.match(r"^[a-zA-Z0-9_]{1,15}$", value):
-            raise ValueError(r"must validate the regular expression /^[a-zA-Z0-9_]{1,15}$/")
+        if not re.match(r"^[a-zA-Z0-9_]{0,15}$", value):
+            raise ValueError(r"must validate the regular expression /^[a-zA-Z0-9_]{0,15}$/")
         return value
 
     @field_validator('name')
