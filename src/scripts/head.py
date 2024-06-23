@@ -1,6 +1,4 @@
-'''
-    headコマンド: チャンネルのメッセージを新しい順に表示します
-'''
+'''head:    チャンネルのメッセージを新しい順に表示します'''
 import argparse
 from typing import List
 import sys

@@ -1,6 +1,5 @@
-'''
-    lsコマンド: チャンネル一覧を表示します
-'''
+'''ls:      チャンネル一覧を表示します'''
+
 import argparse
 import sys
 

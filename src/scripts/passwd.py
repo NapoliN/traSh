@@ -1,6 +1,4 @@
-'''
-passwdコマンド: パスワードを変更します。
-'''
+'''passwd:  パスワードを変更します'''
 import sys
 from getpass import getpass
 

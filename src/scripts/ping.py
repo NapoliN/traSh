@@ -1,6 +1,4 @@
-'''
-    pingコマンド: pongを出力する
-'''
+"""ping:    pongを出力します"""
 
 def ping():
     print("pong")

@@ -1,6 +1,4 @@
-'''
-    mkdirコマンド:チャンネルを作成します
-'''
+'''mkdir:   チャンネルを作成します'''
 
 import sys
 import argparse

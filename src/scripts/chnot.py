@@ -1,6 +1,4 @@
-'''
-    chnotコマンド: チャンネルの通知設定を変更する 
-'''
+'''chnot:   チャンネルの通知設定を変更します'''
 from typing import Optional
 import argparse
 import sys

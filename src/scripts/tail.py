@@ -1,6 +1,4 @@
-'''
-    tailコマンド: チャンネルのメッセージを古い順に表示します
-'''
+'''tail:    チャンネルのメッセージを古い順に表示します'''
 import argparse
 from typing import List
 import sys

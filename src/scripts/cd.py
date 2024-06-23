@@ -1,6 +1,4 @@
-'''
-    cdコマンド: チャンネルを移動します
-'''
+'''cd:      チャンネルを移動します'''
 import sys
 
 from src.services.channel_service import ChannelService, IChannelService
