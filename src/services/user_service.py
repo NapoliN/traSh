@@ -3,7 +3,8 @@
 '''
 from typing import List
 from src.shell.session import Session
-from openapi.openapi_client.api import UserApi
+from openapi.openapi_client.api import UserApi, MeApi
+from openapi_client.models.put_my_password_request import PutMyPasswordRequest
 
 class UserService:
     '''
@@ -13,6 +14,7 @@ class UserService:
     def __init__(self, session: Session):
         self.session = session
         self.user_api = UserApi(api_client=session.client)
+        self.me_api = MeApi(api_client=session.client)
 
     def get_user_name(self, user_id:str) -> str:
         '''
@@ -43,3 +45,10 @@ class UserService:
         '''
         user = self.user_api.get_users(name=user_name)
         return user[0].id
+
+    def change_password(self, current_password: str, new_password: str):
+        '''
+            パスワード変更
+        '''
+        request = PutMyPasswordRequest(password=current_password, newPassword=new_password)
+        self.me_api.change_my_password(request)
