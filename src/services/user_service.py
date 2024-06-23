@@ -5,6 +5,7 @@ from typing import List
 from src.shell.session import Session
 from openapi.openapi_client.api import UserApi, MeApi
 from openapi_client.models.put_my_password_request import PutMyPasswordRequest
+from openapi_client.models.patch_me_request import PatchMeRequest
 
 class UserService:
     '''
@@ -52,3 +53,17 @@ class UserService:
         '''
         request = PutMyPasswordRequest(password=current_password, newPassword=new_password)
         self.me_api.change_my_password(request)
+        
+    def change_displayname(self, new_displayname: str):
+        '''
+            表示名変更
+        '''
+        request = PatchMeRequest(displayName=new_displayname)
+        self.me_api.edit_me(request)
+
+    def change_home_channel(self, new_channel_id: str):
+        '''
+            ホームディレクトリ変更
+        '''
+        request = PatchMeRequest(homeChannel=new_channel_id)
+        self.me_api.edit_me(request)

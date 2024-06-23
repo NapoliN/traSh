@@ -105,6 +105,7 @@ class ChannelService(IChannelService):
         '''
             パスからチャンネルIDを完全一致で取得する
         '''
+        #FIXME 絶対パスの検索がうまくいっていない
         match = self.__convert_path2id(current_channel_id, path_, prefix_match=False)
         if len(match) == 1:
             return match[0]

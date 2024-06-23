@@ -18,6 +18,7 @@ class InputReader():
         標準入力を読み込むクラス
         tabキーで補完を行えるようにする
     '''
+    #FIXME 日本語入力への対応
     def __init__(self) -> None:
         self.candidate: List[str] = []
         self.input_buffer: List[str] = []
