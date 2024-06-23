@@ -12,6 +12,7 @@ openapi_client = {path = "openapi"}
 certifi = "^2024.2.2"
 mypy = "^1.10.0"
 pytest = "^8.2.0"
+python-dotenv = "^1.0.1"
 
 
 [build-system]

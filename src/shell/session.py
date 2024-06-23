@@ -3,6 +3,7 @@ from abc import ABCMeta, abstractmethod
 import re
 import certifi
 import os
+from dotenv import load_dotenv
 
 from openapi.openapi_client import api_client
 from openapi.openapi_client.models import PostLoginRequest
@@ -34,7 +35,9 @@ class Session(SessionBase):
         # sessionを保持するためのクライアントを作成
         self.client = api_client.ApiClient(configuration=api_client.Configuration(ssl_ca_cert=certifi.where()))
         config = Configuration()
-        config.host = config.get_host_settings()[2]["url"]
+        load_dotenv(".env")
+        
+        config.host = os.getenv("TRAQ_API_ENDPOINT")
         self.client.configuration = config
         
     def load_session(self):

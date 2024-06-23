@@ -1,7 +1,9 @@
 import os
 from typing import Tuple
 from src.shell.session import Session
+from dotenv import load_dotenv
 
+load_dotenv("test.env")
 
 def getLoginId() -> Tuple[str,str]:
     usrname = os.environ.get("TRAQ_USERNAME")
