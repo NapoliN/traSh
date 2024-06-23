@@ -5,7 +5,7 @@ from typing import Optional, List
 from abc import ABCMeta, abstractmethod
 
 from openapi.openapi_client.api import ChannelApi
-from openapi.openapi_client.models import ChannelList, Channel
+from openapi.openapi_client.models import ChannelList, Channel, PostChannelRequest
 from src.shell.session import Session
 from src.shell.environment import Environment
 from src.shell.api_cache import APICache, NoCacheException
@@ -16,6 +16,9 @@ class IChannelService(metaclass=ABCMeta):
     '''
     @abstractmethod
     def get_channel_name(self, channel_id:str) -> str:
+        pass
+    @abstractmethod
+    def create_channel(self, name: str, parent_id: str) -> None:
         pass
     @abstractmethod
     def convert_id2fullpath(self, channel_id:str) -> str:
@@ -158,6 +161,18 @@ class ChannelService(IChannelService):
                     else:
                         tmp_channel = candidates[0]
         return [tmp_channel]
+
+    def create_channel(self, name: str, parent_id: str) -> None:
+        '''
+            チャンネルを作成する
+            呼び出すときは409エラーが起きないことを期待する
+        '''
+        request = PostChannelRequest(name=name, parent=parent_id)
+        chnl = self.channel_api.create_channel(request)
+        new_parent = self.channel_api.get_channel(parent_id)
+        # キャッシュ上のチャンネル情報の更新
+        self.cache.set_channel(chnl)
+        self.cache.set_channel(new_parent)
 
     def search_name_with_parent(self, channel_name: str, parent_id: str, prefix_match: bool = False) -> List[str]:
         '''

@@ -19,6 +19,6 @@ def _cd(path: str, channel_service:IChannelService, env:IEnvironment):
     channel_id = channel_service.convert_path2idperfect(env.current_channel_id, path)
     if channel_id is None:
         print("チャンネルが見つかりませんでした")
-        exit(1)
+        return
     channel_fullpath = channel_service.convert_id2fullpath(channel_id)
     env.set_current_channel(channel_id, channel_fullpath)
