@@ -35,22 +35,22 @@ def chnot(path: str, notify: NotificationState, target: Optional[str]=None):
 def _chnot(path: str, notify: NotificationState, env:Environment, channel_service:ChannelService, notification_service:NotificationService, user_service:UserService, target: Optional[str]=None):
     channel_id = channel_service.convert_path2idperfect(env.current_channel_id, path)
     if channel_id is None:
-        print("チャンネルが見つかりませんでした")
+        sys.stderr.write("チャンネルが見つかりませんでした。\n")
         return
     fullpath = channel_service.convert_id2fullpath(channel_id)
 
     if target is None:
         # 自分の通知設定を変更
         notification_service.modify_my_subscription(channel_id, notify)
-        print(f"{fullpath} の通知設定を '{ notify_value_str(notify) }' に変更しました。")
+        sys.stderr.write(f"{fullpath} の通知設定を '{ notify_value_str(notify) }' に変更しました。\n")
     else:
         # 他のユーザの通知設定を変更
         user_id = user_service.get_user_id(target)
         if notify == NotificationState.UNREAD_NOTIFY:
-            print("他のユーザの通知設定の変更は0:通知しない 2:未読通知＋通知 のみ有効です")
+            sys.stderr.write("他のユーザの通知設定の変更は0:通知しない 2:未読通知＋通知 のみ有効です\n")
             return
         notification_service.modify_subscribe(channel_id, user_id, notify == NotificationState.NOTIFY)
-        print(f"{target} の {fullpath} の通知設定を '{ notify_value_str(notify) }' に変更しました。")
+        sys.stderr.write(f"{target} の {fullpath} の通知設定を '{ notify_value_str(notify) }' に変更しました。\n")
 
 def get_notify_value(notify:str) -> NotificationState:
     if notify == "0":

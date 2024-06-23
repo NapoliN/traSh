@@ -3,6 +3,7 @@
 '''
 import argparse
 from typing import List
+import sys
 
 from src.services import ChannelService, MessageService
 from src.shell.session import Session
@@ -20,7 +21,7 @@ def tail(channels: List[str], number:int):
     for channel_path in channels:
         channel_id = ChannelService(session).convert_path2idperfect(env.current_channel_id, channel_path)
         if channel_id is None:
-            print(f"チャンネル{channel_path}が見つかりませんでした")
+            sys.stderr.write(f"チャンネル{channel_path}が見つかりませんでした\n")
             continue
         messages = message_service.get_messages(channel_id,limit=number,order_desc=False)
         for msg in messages:
