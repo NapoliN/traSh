@@ -1,4 +1,4 @@
-"""help:    traShで独自実装されているコマンド一覧を表示します"""
+"""help:    traShで実装しているコマンド一覧を表示します"""
 
 import os
 import importlib.util

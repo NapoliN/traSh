@@ -3,7 +3,7 @@
 '''
 from typing import List
 from src.shell.session import Session
-from openapi.openapi_client.api import UserApi, MeApi
+from openapi.openapi_client.api import UserApi, MeApi, GroupApi
 from openapi_client.models.put_my_password_request import PutMyPasswordRequest
 from openapi_client.models.patch_me_request import PatchMeRequest
 
@@ -16,6 +16,7 @@ class UserService:
         self.session = session
         self.user_api = UserApi(api_client=session.client)
         self.me_api = MeApi(api_client=session.client)
+        self.group_api = GroupApi(api_client=session.client)
 
     def get_user_name(self, user_id:str) -> str:
         '''
@@ -67,3 +68,14 @@ class UserService:
         '''
         request = PatchMeRequest(homeChannel=new_channel_id)
         self.me_api.edit_me(request)
+        
+    def get_user_info(self, user_name: str):
+        try:
+            user_id = self.get_user_id(user_name)
+            return self.user_api.get_user(user_id=user_id)
+        except:
+            return None
+        
+    def get_group_name(self, group_id: str):
+        group = self.group_api.get_user_group(group_id=group_id)
+        return group.name
